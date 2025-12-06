@@ -1,0 +1,56 @@
+<html>
+
+<head>
+  <title>Final Project</title>
+  <link rel="stylesheet" href="stylesheets/style.css">
+</head>
+
+<body>
+  <main id="ui-layer">
+    <div id="button-container">
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.1/p5.min.js"></script>
+  <script src="./sketch.js"></script>
+
+  <div class="menu">
+    <h1 class="title"><span>期</span><span>末</span><span>專</span><span>案</span><span>網</span><span>站</span></h1>
+    <h3 class="sub-title">
+      <span>F</span><span>I</span><span>N</span><span>A</span><span>L</span><span>&emsp;P</span><span>R</span><span>O</span><span>J</span><span>E</span><span>C</span><span>T</span>
+    </h3>
+    <button class="start-button"> START </button>
+
+  </div>
+
+
+  <div class="FirstScene">
+    <h1 class="typewriter">
+      <span>你失業半年，家裡房貸快繳不出來。有人介紹你一份『高報酬工作』——借出你的子宮。</span>
+      <span></span>
+    </h1>
+
+    <button class="continue-button" >繼續</button>
+
+    <!--<button class="change-button" data-next="SecondScene"> 下一幕 </button>-->
+  </div>
+
+  <div class="SecondScene">
+    <h1> 第二幕</h1>
+    <button class="change-button" data-next="ThirdScene"> 下一幕 </button>
+  </div>
+
+  <div class="ThirdScene">
+    <h1> 第三幕</h1>
+    <button class="change-button" data-next="FourthScene"> 下一幕 </button>
+  </div>
+
+  <div class="FourthScene">
+    <h1> 第四幕</h1>
+    <button class="change-button" data-next="start"> 結束 </button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

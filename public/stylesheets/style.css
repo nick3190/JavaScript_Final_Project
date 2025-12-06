@@ -1,0 +1,325 @@
+@font-face {
+  font-family: 'prettyFont';
+  src: url('fonts/Songti.ttc') format('woff2'),
+    url('fonts/Songti.ttc') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: #333;
+  font-family: 'prettyFont', sans-serif;
+}
+
+canvas {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+/*-------------------- Scenes Styles --------------------*/
+
+.menu {
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+
+  opacity: 0;
+  filter: blur(10px);
+  transform: scale(1.5);
+  transition: opacity 2s ease, filter 5s ease, transform 5s ease;
+}
+
+.FirstScene,
+.SecondScene,
+.ThirdScene,
+.FourthScene {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+
+  transition: opacity 1.5s ease;
+}
+
+
+.FirstScene.active,
+.SecondScene.active,
+.ThirdScene.active,
+.FourthScene.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/*-------------------- Words Styles --------------------*/
+
+.title {
+  position: relative;
+  margin-bottom: 10px;
+  margin-left: 3vw;
+
+  width: 80%;
+  text-align: center;
+
+  color: white;
+  font-size: 80px;
+  letter-spacing: 0.5em;
+
+}
+
+.title span {
+  display: inline-block;
+  animation: torsion 4s ease-in-out infinite;
+  text-shadow: 0px 4px 12px rgb(255, 255, 255);
+}
+
+.title span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.title span:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.title span:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.title span:nth-child(4) {
+  animation-delay: 0.9s;
+}
+
+.title span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+.title span:nth-child(6) {
+  animation-delay: 0.8s;
+}
+
+
+.sub-title {
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 3vw;
+
+  width: 80%;
+  text-align: center;
+
+
+  color: white;
+  font-size: 20px;
+  letter-spacing: 1.9em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sub-title span {
+  display: inline-block;
+  animation: torsion 4s ease-in-out infinite;
+  text-shadow: 0px 4px 12px rgb(255, 255, 255);
+}
+
+.sub-title span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.sub-title span:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.sub-title span:nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+.sub-title span:nth-child(4) {
+  animation-delay: 0.7s;
+}
+
+.sub-itle span:nth-child(5) {
+  animation-delay: 0.9s;
+}
+
+.sub-title span:nth-child(6) {
+  animation-delay: 0.2s;
+}
+
+.sub-title span:nth-child(7) {
+  animation-delay: 0.4s;
+}
+
+.sub-itle span:nth-child(8) {
+  animation-delay: 0.6s;
+}
+
+.sub-title span:nth-child(9) {
+  animation-delay: 0.8s;
+}
+
+
+.typewriter span {
+  display: inline-block;
+  font-size: 24px;
+  letter-spacing: 0.2em;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid rgba(255, 255, 255, 1);
+
+
+  width: 0;
+  animation: typing 10s steps(50,end) forwards, blink 0.7s step-end infinite;
+}
+
+
+/*-------------------- Buttons Styles --------------------*/
+
+.start-button {
+  position: relative;
+  width: 30%;
+  height: 80px;
+  margin-top: 50px;
+
+  background: linear-gradient(45deg, rgba(51, 51, 148, 0.2), rgba(125, 127, 154, 0.2));
+  border-radius: 30vw;
+  border: rgba(255, 255, 255, 0.1) 0.1px solid;
+  box-shadow: 0 10px 12px rgba(0, 0, 0, 0.3);
+
+  font-size: 24px;
+  font-family: 'prettyFont', sans-serif;
+  color: white;
+  letter-spacing: 0.5em;
+
+  cursor: pointer;
+  overflow: hidden;
+
+  transition: opacity 1.5s ease, transform 0.3s;
+  z-index: 100;
+}
+
+.change-button,
+.continue-button{
+  margin-top: 10px;
+  padding: 10px 30px;
+  font-size: 24px;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s, transform 0.2s;
+  z-index: 100;
+}
+
+
+.start-button:hover,
+.change-button:hover,
+.continue-button:hover{
+  transform: scale(1.05);
+  transform-origin: center;
+  box-shadow: 0 0px 50px rgba(255, 255, 255, 1);
+  animation: shine 3s ease-in-out infinite;
+}
+
+.start-button::after 
+.change-button::after,
+.continue-button::after{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -52%;
+  width: 50%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: skewX(-20deg);
+}
+
+.start-button:active,
+.change-button:active,
+.continue-button:active{
+  transform: scale(0.95);
+}
+
+@keyframes shine {
+
+  0%,
+  100% {
+    box-shadow: 0 0px 50px rgba(255, 255, 255, 0);
+  }
+
+  50% {
+    box-shadow: 0 0px 50px rgba(255, 255, 255, 1);
+  }
+}
+
+@keyframes clickScale {
+  0% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(1.2);
+  }
+
+  60% {
+    transform: scale(0.8);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes torsion {
+
+  0%,
+  100% {
+    transform: translateY(0) skew(10deg) scaleX(1.1) scaleY(0.9);
+    filter: blur(0);
+  }
+
+  50% {
+    transform: translateY(-10px) skew(0deg) scaleX(0.9) scaleY(1.1);
+    filter: blur(0.02em);
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
