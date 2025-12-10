@@ -14,8 +14,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.1/p5.min.js"></script>
   <script src="./sketch.js"></script>
 
+  <h1 class="text-click">請點擊螢幕</h1>
+
   <div class="menu">
-    <h1 class="title"><span>期</span><span>末</span><span>專</span><span>案</span><span>網</span><span>站</span></h1>
+    <h1 class="title"><span>代</span><span>理</span><span>孕</span><span>母</span><span>之</span><span>路</span></h1>
     <h3 class="sub-title">
       <span>F</span><span>I</span><span>N</span><span>A</span><span>L</span><span>&emsp;P</span><span>R</span><span>O</span><span>J</span><span>E</span><span>C</span><span>T</span>
     </h3>
@@ -25,30 +27,193 @@
 
 
   <div class="FirstScene">
-    <h1 class="typewriter">
-      <span>你失業半年，家裡房貸快繳不出來。有人介紹你一份『高報酬工作』——借出你的子宮。</span>
-      <span></span>
+    <h1 class="TypeWriter" data-id="1">
+      <span>你失業半年，家裡房貸快繳不出來。</span>
+      <span>有人介紹你一份「高報酬工作」。</span>
+    </h1>
+    <button class="continue-button" data-action="whatjob">什麼工作？</button>
+    <h1 class="TypeWriter" data-id="2">
+      <span>...借出你的子宮。</span>
+    </h1>
+    <div class="choice-block">
+      <button class="continue-button" data-action="agree">我願意</button>
+      <button class="continue-button" data-action="disagree">我再想想...</button>
+    </div>
+    <h1 class="TypeWriter" data-id="3">
+      <span>這份工作只是懷一個孩子，之後就沒你的事了。</span>
+      <span> 這是一份助人圓夢的「服務」。</span>
+    </h1>
+    <button class="continue-button" data-action="then">所以呢？</button>
+    <h1 class="TypeWriter" data-id="4">
+      <span>你沒有選擇的餘地。</span>
+    </h1>
+    <button class="continue-button" data-action="agreeTwo">我願意...</button>
+
+    <h1 class="TypeWriter" data-id="5">
+      <span>太棒了！開始工作之前，你得先簽一份合約。</span>
     </h1>
 
-    <button class="continue-button" >繼續</button>
+    <button class="continue-button" data-action="ok">好的</button>
 
-    <!--<button class="change-button" data-next="SecondScene"> 下一幕 </button>-->
+    <div class="contact">
+      <h1>代孕條約</h1>
+      <p>1. 基本報酬自胚胎植入且胎兒心跳確認後開始計算。<br>;2. 孕母同意遵照醫療團隊指示，不得自行終止妊娠。<br>3. 妊娠期間，孕母不得進行高強度活動與搭機旅行，飲食也必須受到嚴格管控。<br></p>
+      <p style="color:red">註：若妊娠失敗，報酬即停止，且孕母必須承受一切法律責任。</p>
+      <p> 簽名處：</p>
+    </div>
+
+    <div id="signature-container" class="signature-container">
+      <div class="canvas-wrapper">
+        <canvas id="drawing-board" width="800" height="300"></canvas>
+      </div>
+
+      <div class="sig-buttons">
+        <button id="clear-btn" data-action="clear" class="continue-button">重寫</button>
+        <button id="confirm-sign-btn" data-action="confirm" class="continue-button">確定</button>
+      </div>
+    </div>
+
+
+
+
+    <button class="change-button" data-next="SecondScene" data-action="TriggerSecondScene"> 下一幕 </button>
   </div>
 
   <div class="SecondScene">
-    <h1> 第二幕</h1>
-    <button class="change-button" data-next="ThirdScene"> 下一幕 </button>
+    <h1 class="TypeWriter" data-id="21">
+      <span>隨著契約生效，你的身體變成了計畫的一部分。</span>
+    </h1>
+    <button class="continue-button" data-action="two-one-btn">瞭解</button>
+
+
+    <h1 class="TypeWriter" data-id="22">
+      <span>醫生說，為提升胚胎著床的成功率</span>
+      <span>你必須每天在固定時間注射激素。</span>
+      <span>請點擊您的身體進行注射。</span>
+    </h1>
+
+
+    <h1 class="TypeWriter" data-id="23">
+      <span>「腹脹、噁心、頭痛……醫生說這是正常反應」</span>
+      <span>「我真的得為了賺錢這樣折磨我的身體嗎？」</span>
+    </h1>
+
+    <h1 class="normal" data-id="24">
+      <span style="font-size: 36px"> 代孕小知識 </span>
+      <span>輔助生殖技術（ART）的激素療程可能導致 卵巢過度刺激症候群（OHSS），症狀包含腹脹、嘔吐、氣喘等。</span>
+    </h1>
+
+    <button class="continue-button" data-action="two-two-btn">繼續</button>
+
+
+    <h1 class="TypeWriter" data-id="25">
+      <span>今天產檢時，你的血壓數字不正常</span>
+      <span>醫生皺起眉頭，要求你立刻進行密集檢查。</span>
+    </h1>
+
+    <button class="continue-button" data-action="two-three-btn">測量血壓</button>
+
+    <h1 class="TypeWriter" data-id="26">
+      <span> 「我的血壓太高了，我是不是做錯了什麼？」</span>
+      <span>「這孩子不屬於我…難道我的身體正在排斥它嗎？」</span>
+    </h1>
+
+    <h1 class="normal" data-id="27">
+      <span style="font-size: 36px"> 代孕小知識 </span>
+      <span>孕期若免疫調節不平衡，可能增加子癇前症（Preeclampsia）風險。代孕懷胎涉及父母不同基因來源，可能增加免疫負荷。</span>
+    </h1>
+
+    <button class="continue-button" data-action="two-four-btn">繼續</button>
+
+
+
+    <h1 class="TypeWriter" data-id="28">
+      <span> 這次的植入又失敗了。</span>
+      <span>醫生建議立刻進行下一次植入手術</span>
+      <span>你若拒絕，合約將立即終止。<span>
+    </h1>
+
+    <button class="continue-button" data-action="two-five-btn">進行手術</button>
+
+    <h1 class="TypeWriter" data-id="29">
+      <span> 「再來一次……我已經不知道是第幾次了。」</span>
+      <span>「 但若不成功，我什麼都拿不到。」</span>
+      <span> 「我真的別無選擇。」<span>
+    </h1>
+
+
+
+    <h1 class="normal" data-id="291">
+      <span style="font-size: 36px"> 代孕小知識 </span>
+      <span>代孕若第一次植入不成功，常需進行多次激素療程與植入，增加身體負擔與心理壓力。</span>
+    </h1>
+
+    <button class="continue-button" data-action="two-six-btn">繼續</button>
+
+
+
+    <button class="change-button" data-next="ThirdScene" data-action="TriggerThirdScene"> 下一幕 </button>
   </div>
 
   <div class="ThirdScene">
-    <h1> 第三幕</h1>
-    <button class="change-button" data-next="FourthScene"> 下一幕 </button>
+    <h1 class="TypeWriter" data-id="31">
+      <span>你努力了將近一年，孩子終於出生了。</span>
+    </h1>
+    <button class="continue-button" data-action="three-one-btn">太好了？</button>
+
+    <h1 class="TypeWriter" data-id="32">
+      <span>護士沒有問你要不要抱孩子。</span>
+      <span>因為，合約早就簽好了。</span>
+      <span>孩子真正的父母正準備帶走他。</span>
+    </h1>
+    <button class="continue-button" data-action="three-two-btn">憑什麼？</button>
+
+    <button class="change-button" data-next="FourthScene" data-action="TriggerFourthScene"> 下一幕 </button>
+
+  </div>
+  <div class="FourthScene">
+
+    <h1 class="TypeWriter" data-id="41">
+      <span>剛剛，你用她的視角，承受了身體與情感的代價。</span>
+    </h1>
+    <button class="continue-button" data-action="four-one-btn">好痛苦...</button>
+
+    <h1 class="TypeWriter" data-id="42">
+      <span>現在，輪到你用自己的名字，決定制度的樣子。</span>
+    </h1>
+    <button class="continue-button" data-action="four-two-btn">我準備好了</button>
+
+    <h1 class="TypeWriter" data-id="43">
+      <span>現在的你，對於代孕的想法是什麼呢？</span>
+    </h1>
+
+    <div class="final-decision">
+      <button class="continue-button" data-action="four-three-btn">
+        <h1>支持</h1>
+        <p>你選擇讓國家建立完善機制，讓想成家的家庭與代孕者能在安全條件下合作。</p>
+      </button>
+      <button class="continue-button" data-action="four-four-btn">
+        <h1>反對</h1>
+        <p>你認為代孕會使女性身體商品化，尤其威脅經濟弱勢者，因此堅決反對。</p>
+      </button>
+      <button class="continue-button" data-action="four-five-btn">
+        <h1>按下暫停鍵</h1>
+        <p>你主張先進行公聽會、研究兒童最佳利益、婦女健康與法律影響後再做決策。</p>
+      </button>
+    </div>
+
+    <h1 class="TypeWriter" data-id="44">
+      <span>無論你的答案是什麼，來看看大家的選擇吧！</span>
+    </h1>
+
+    <div class="end-options">
+      <button class="continue-button" data-action="restart">再玩一次</button>
+      <button class="continue-button" data-action="pure-background">點我看動畫</button>
+    </div>
+
+
   </div>
 
-  <div class="FourthScene">
-    <h1> 第四幕</h1>
-    <button class="change-button" data-next="start"> 結束 </button>
-  </div>
 
   <script src="script.js"></script>
 </body>

@@ -75,7 +75,134 @@ canvas {
   pointer-events: auto;
 }
 
+
+.choice-block {
+  display: none;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+
+.signature-container {
+  display: none;
+  opacity: 0;
+
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 800px;
+  max-width: 80vw;
+
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+
+  z-index: 100;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.canvas-wrapper {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+#drawing-board {
+  margin-top: 200px;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: auto;
+  cursor: crosshair;
+  display: block;
+}
+
+.sig-buttons {
+  margin-top: 500px;
+  display: none;
+  opacity: 0;
+  gap: 20px;
+
+  transition: opacity 1.5s ease-in-out;
+}
+
+.final-decision .continue-button {
+  width: 60%;
+  height: auto;
+  flex-direction: column;
+  padding: 20px;
+  margin: 50px auto;
+  display: none;
+  opacity: 0;
+
+  transition: opacity 2s ease;
+}
+
+.final-decision .continue-button h3 {
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  transition: opacity 1s ease;
+}
+
+.final-decision .continue-button p {
+  font-size: 20px;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  white-space: normal;
+  transition: opacity 1s ease;
+}
+
+.final-decision {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.end-options {
+  display: none;
+  opacity: 0;
+  flex-direction: row;
+  gap: 30px;
+  margin-top: 30px;
+  transition: opacity 1.5s ease;
+}
+
+.end-options .continue-button {
+  width: auto;
+  padding: 10px 40px;
+}
+
 /*-------------------- Words Styles --------------------*/
+
+
+.text-click {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 53%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  height: auto;
+  opacity: 0;
+
+  font-size: 40px;
+  font-family: 'prettyFont', sans-serif;
+  color: white;
+  letter-spacing: 2em;
+  line-height: 2em;
+  text-align: center;
+  white-space: nowrap;
+
+  transition: opacity 1.5s ease-in-out;
+  animation: textShine 3s ease-in-out infinite;
+}
 
 .title {
   position: relative;
@@ -160,7 +287,7 @@ canvas {
   animation-delay: 0.7s;
 }
 
-.sub-itle span:nth-child(5) {
+.sub-title span:nth-child(5) {
   animation-delay: 0.9s;
 }
 
@@ -172,7 +299,7 @@ canvas {
   animation-delay: 0.4s;
 }
 
-.sub-itle span:nth-child(8) {
+.sub-title span:nth-child(8) {
   animation-delay: 0.6s;
 }
 
@@ -180,21 +307,90 @@ canvas {
   animation-delay: 0.8s;
 }
 
+.normal {
+  display: none;
+  width: 70vw;
+  height: 200px;
+  flex-direction: column;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 100px;
+  padding: 80px;
 
-.typewriter span {
-  display: inline-block;
-  font-size: 24px;
-  letter-spacing: 0.2em;
+
+  font-size: 30px;
+  font-family: 'prettyFont', sans-serif;
+  color: white;
+  letter-spacing: 0.1em;
+  line-height: 2em;
   text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  border-right: 3px solid rgba(255, 255, 255, 1);
 
-
-  width: 0;
-  animation: typing 10s steps(50,end) forwards, blink 0.7s step-end infinite;
+  transition: opacity 1.5s ease-in-out;
 }
 
+.TypeWriter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+
+  opacity: 1;
+  transition: opacity 1.5s ease;
+}
+
+.TypeWriter span {
+  display: flex;
+  width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  justify-content: space-around;
+
+  font-size: 35px;
+  letter-spacing: 0.2em;
+  text-align: left;
+  border-right: 2px solid transparent;
+
+  margin-bottom: 30px;
+}
+
+.TypeWriter.start-typing span:nth-child(1) {
+  animation:
+    typing 3s steps(30, end) forwards,
+    blink .75s step-end 5;
+}
+
+.TypeWriter.start-typing span:nth-child(2) {
+  animation:
+    typing 3s steps(20, end) forwards,
+    blink .75s step-end 3;
+
+  animation-delay: 4s;
+}
+
+.TypeWriter.start-typing span:nth-child(3) {
+  animation:
+    typing 3s steps(20, end) forwards,
+    blink .75s step-end 3;
+
+  animation-delay: 8s;
+}
+
+
+.contact {
+  display: none;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 100px;
+  padding: 50px;
+  font-size: 24px;
+  font-family: 'prettyFont', sans-serif;
+  color: white;
+  letter-spacing: 0.1em;
+  line-height: 2em;
+  text-align: left;
+
+  transition: opacity 2s ease-in-out;
+}
 
 /*-------------------- Buttons Styles --------------------*/
 
@@ -209,7 +405,7 @@ canvas {
   border: rgba(255, 255, 255, 0.1) 0.1px solid;
   box-shadow: 0 10px 12px rgba(0, 0, 0, 0.3);
 
-  font-size: 24px;
+  font-size: 30px;
   font-family: 'prettyFont', sans-serif;
   color: white;
   letter-spacing: 0.5em;
@@ -222,45 +418,47 @@ canvas {
 }
 
 .change-button,
-.continue-button{
+.continue-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 300px;
   margin-top: 10px;
-  padding: 10px 30px;
-  font-size: 24px;
+  margin-left: 20px;
+  padding: 20px;
+
+
+  font-size: 30px;
+  letter-spacing: 0.5em;
+  text-align: center;
+  font-family: 'prettyFont', sans-serif;
+
+
   background-color: rgba(0, 0, 0, 0.3);
   color: white;
-  border-radius: 30px;
+  border-radius: 40px;
+  pointer-events: none;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: background-color 0.3s, transform 0.2s;
+  transition: background-color 0.3s, transform 0.2s, opacity 2s ease;
   z-index: 100;
 }
 
 
 .start-button:hover,
 .change-button:hover,
-.continue-button:hover{
+.continue-button:hover {
   transform: scale(1.05);
   transform-origin: center;
   box-shadow: 0 0px 50px rgba(255, 255, 255, 1);
   animation: shine 3s ease-in-out infinite;
 }
 
-.start-button::after 
-.change-button::after,
-.continue-button::after{
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -52%;
-  width: 50%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.4);
-  transform: skewX(-20deg);
-}
 
 .start-button:active,
 .change-button:active,
-.continue-button:active{
+.continue-button:active {
   transform: scale(0.95);
 }
 
@@ -273,6 +471,18 @@ canvas {
 
   50% {
     box-shadow: 0 0px 50px rgba(255, 255, 255, 1);
+  }
+}
+
+@keyframes textShine {
+
+  0%,
+  100% {
+    text-shadow: 0 0px 50px rgba(255, 255, 255, 0);
+  }
+
+  50% {
+    text-shadow: 0 0px 50px rgba(255, 255, 255, 1);
   }
 }
 
@@ -319,7 +529,13 @@ canvas {
 }
 
 @keyframes blink {
-  50% {
+
+  from,
+  to {
     border-color: transparent;
+  }
+
+  50% {
+    border-color: rgba(255, 255, 255, 1);
   }
 }
