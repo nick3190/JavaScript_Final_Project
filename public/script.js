@@ -4,7 +4,7 @@ const sfxType = new Audio('./sounds/Typing.mp3')
 bgm.loop = true;
 bgm.volume = 0;
 sfxClick.volume = 1;
-sfxType.volume = 0.2;
+sfxType.volume = 0.3;
 sfxType.loop = true;
 
 let hasStartedMusic = false;
@@ -35,6 +35,38 @@ function playTypingSound(duration) {
     }, duration);
 }
 
+function initTypeWriters() {
+    const writers = document.querySelectorAll('.TypeWriter span');
+
+    writers.forEach(span => {
+        const text = span.textContent;
+        const charCount = text.length;
+
+        let widthScore = 0;
+
+        for (let char of text) {
+            if (char.match(/[\u4e00-\u9fa5]|[\u3000-\u303f]|[\uff00-\uffef]/)) {
+                widthScore += 2;
+            } else {
+                widthScore += 1.5;
+            }
+        }
+
+        const finalWidth = Math.round(widthScore);
+
+        span.style.setProperty('--steps', charCount);
+        span.style.setProperty('--width', finalWidth + 'ch');
+        span.style.setProperty('--duration', (charCount * 0.15) + 's');
+
+        console.log(`charCount = ${charCount}`)
+        console.log(`finalWidth = ${finalWidth}`)
+    });
+}
+
+
+
+document.addEventListener('DOMContentLoaded', initTypeWriters);
+
 function fadeOutBgm(duration = 2000) {
     const interval = 50;
     const step = bgm.volume / (duration / interval);
@@ -50,6 +82,54 @@ function fadeOutBgm(duration = 2000) {
         }
     }, interval);
 }
+
+
+
+const startBtn = document.querySelector('.start-button');
+const menu = document.querySelector('.Menu');
+const firstScene = document.querySelector('.FirstScene');
+const allChangeBtns = document.querySelectorAll('.change-button');
+const typeWriter = document.querySelectorAll('.TypeWriter')
+const continueBtn = document.querySelectorAll('.continue-button');
+const choiceBlock = document.querySelectorAll('.choice-block');
+
+
+// 初始狀態
+window.addEventListener('load', () => {
+    //場景初始化
+    firstScene.style.display = 'none';
+
+    //s1
+    typeWriter.forEach(t => t.style.display = 'none');
+    typeWriter.forEach(btn => btn.style.opacity = 0);
+    continueBtn.forEach(btn => btn.style.display = 'none');
+    continueBtn.forEach(btn => btn.style.opacity = 0);
+    choiceBlock.forEach(block => block.style.display = 'none');
+    choiceBlock.forEach(block => block.style.opacity = 0);
+    allChangeBtns.forEach(btn => btn.style.pointerEvents = 'auto');
+    //allChangeBtns.forEach(btn => btn.style.display = 'none');
+    //allChangeBtns.forEach(btn => btn.style.opacity = 0);
+
+    menu.style.display = 'none';
+
+    /*
+        //p5js參數初始化（這些要搬到後端，然後寄數據到這個檔案）
+        params.speed = 0.005;
+        params.amp = 80;            // 波浪振幅(高度)：數值越大浪越高 (30 ~ 100)
+        params.density = 0.01;      // 波浪密度(頻率)：數值越大越碎 (0.005 ~ 0.02)
+        params.layerGap = 60;       // 線條間距：數值越小越密集 (10 ~ 30)
+        params.curveRes = 20;       // 線條解析度：數值越小線條越平滑但較耗效能 (10 ~ 50)
+        params.trail = 5;           // 殘影強度：0(長殘影) ~ 100(無殘影)
+        params.bgColor = [210, 80, 20, 100]; // 背景色 HSB (H, S, B, A)
+        params.lineColor = [200, 60, 90]; // 線條色 HSB (H, S, B)
+    */
+
+
+    const TextClick = document.querySelector('.text-click');
+    TextClick.style.display = 'flex';
+    requestAnimationFrame(() => TextClick.style.opacity = 1);
+
+});
 
 //點擊螢幕
 document.body.addEventListener('click', () => {
@@ -85,54 +165,9 @@ document.body.addEventListener('click', () => {
 
     setTimeout(() => {
         startBtn.style.pointerEvents = 'auto';
-    }, 4000);
+    }, 5000);
 
 }, { once: true });
-
-const startBtn = document.querySelector('.start-button');
-const menu = document.querySelector('.Menu');
-const firstScene = document.querySelector('.FirstScene');
-const allChangeBtns = document.querySelectorAll('.change-button');
-const typeWriter = document.querySelectorAll('.TypeWriter')
-const continueBtn = document.querySelectorAll('.continue-button');
-const choiceBlock = document.querySelectorAll('.choice-block');
-
-
-// 初始狀態
-window.addEventListener('load', () => {
-    //場景初始化
-    firstScene.style.display = 'none';
-
-
-    //s1
-    typeWriter.forEach(t => t.style.display = 'none');
-    typeWriter.forEach(btn => btn.style.opacity = 0);
-    continueBtn.forEach(btn => btn.style.display = 'none');
-    continueBtn.forEach(btn => btn.style.opacity = 0);
-    choiceBlock.forEach(block => block.style.display = 'none');
-    choiceBlock.forEach(block => block.style.opacity = 0);
-    allChangeBtns.forEach(btn => btn.style.pointerEvents = 'auto');
-    //allChangeBtns.forEach(btn => btn.style.display = 'none');
-    //allChangeBtns.forEach(btn => btn.style.opacity = 0);
-
-
-    //p5js參數初始化（這些要搬到後端，然後寄數據到這個檔案）
-    params.speed = 0.005;
-    params.amp = 80;            // 波浪振幅(高度)：數值越大浪越高 (30 ~ 100)
-    params.density = 0.01;      // 波浪密度(頻率)：數值越大越碎 (0.005 ~ 0.02)
-    params.layerGap = 60;       // 線條間距：數值越小越密集 (10 ~ 30)
-    params.curveRes = 20;       // 線條解析度：數值越小線條越平滑但較耗效能 (10 ~ 50)
-    params.trail = 5;           // 殘影強度：0(長殘影) ~ 100(無殘影)
-    params.bgColor = [210, 80, 20, 100]; // 背景色 HSB (H, S, B, A)
-    params.lineColor = [200, 60, 90]; // 線條色 HSB (H, S, B)
-    //
-
-
-    const TextClick = document.querySelector('.text-click');
-    TextClick.style.display = 'flex';
-    requestAnimationFrame(() => TextClick.style.opacity = 1);
-
-});
 
 
 
@@ -140,6 +175,7 @@ window.addEventListener('load', () => {
 startBtn.addEventListener('click', function () {
     sfxClick.currentTime = 0;
     sfxClick.play();
+    startBtn.style.pointerEvents = 'none';
     setTimeout(() => {
         menu.style.filter = 'blur(2)';
         menu.style.transform = 'scale(2)';
@@ -187,6 +223,7 @@ continueBtn.forEach(btn => {
     btn.addEventListener('click', (e) => {
         sfxClick.currentTime = 0;
         sfxClick.play();
+        btn.style.pointerEvents = 'none';
         const action = e.target.dataset.action;
         //什麼工作？
         if (action === 'whatjob') {
@@ -344,7 +381,7 @@ continueBtn.forEach(btn => {
         else if (action === 'ok') {
             const TextFive = document.querySelector('.TypeWriter[data-id="5"]');
             const sigContainer = document.getElementById('signature-container');
-            const TextContact = document.querySelector('.contact');
+            const TextContact = document.querySelector('.contact[data-id="1"]');
             const okBtn = document.querySelector('.continue-button[data-action="ok"]');
             const sigBtn = document.querySelector('.sig-buttons');
 
@@ -358,35 +395,21 @@ continueBtn.forEach(btn => {
                 if (TextFive) TextFive.style.display = 'none';
                 if (okBtn) okBtn.style.display = 'none';
                 TextContact.style.display = 'block';
+                sigContainer.style.display = 'flex';
+                sigBtn.style.display = 'flex';
+                confirmBtn.style.display = 'block';
+                clearBtn.style.display = 'block';
             }, 2000);
 
             setTimeout(() => {
                 TextContact.style.opacity = 1;
+                sigContainer.style.opacity = 1;
+                sigBtn.style.opacity = 1;
+                confirmBtn.style.opacity = 1;
+                clearBtn.style.opacity = 1;
+                confirmBtn.style.pointerEvents = 'auto';
+                clearBtn.style.pointerEvents = 'auto';
             }, 3500);
-
-            setTimeout(() => {
-                if (sigContainer) {
-                    sigContainer.style.display = 'flex';
-                    requestAnimationFrame(() => sigContainer.style.opacity = 1);
-                }
-
-                if (sigBtn) {
-                    sigBtn.style.display = 'flex';
-                    requestAnimationFrame(() => sigBtn.style.opacity = 1);
-                }
-
-                if (confirmBtn) {
-                    confirmBtn.style.display = 'block';
-                    confirmBtn.style.pointerEvents = 'auto';
-                    requestAnimationFrame(() => confirmBtn.style.opacity = 1);
-                }
-                if (clearBtn) {
-                    clearBtn.style.display = 'block';
-                    clearBtn.style.pointerEvents = 'auto';
-                    requestAnimationFrame(() => clearBtn.style.opacity = 1);
-                }
-
-            }, 5000)
         }
 
         //確認
@@ -409,23 +432,23 @@ continueBtn.forEach(btn => {
                 if (sigBtn) sigBtn.style.display = 'none';
                 if (confirmBtn) confirmBtn.style.display = 'none';
                 if (clearBtn) clearBtn.style.display = 'none';
+                goToScene('SecondScene');
             }, 2000);
 
             setTimeout(() => {
-                goToScene('SecondScene');
                 TextTwoOne.style.display = 'flex';
                 void TextTwoOne.offsetWidth;
                 TextTwoOne.style.opacity = 1;
                 TextTwoOne.classList.add('start-typing');
                 playTypingSound(3000);
                 okBtnTwoOne.style.display = 'flex';
-            }, 3000);
+            }, 5000);
 
             setTimeout(() => {
                 okBtnTwoOne.style.pointerEvents = 'auto';
                 okBtnTwoOne.style.opacity = 1;
 
-            }, 7000)
+            }, 9000)
 
         }
 
@@ -437,7 +460,7 @@ continueBtn.forEach(btn => {
             const TextTwoThree = document.querySelector('.TypeWriter[data-id="23"]')
             const okBtnTwoTwo = document.querySelector('.continue-button[data-action="two-two-btn"]')
             const TextTwoFour = document.querySelector('.normal[data-id="24"]')
-
+            const InjectionHint = document.getElementById('injection-hint')
 
 
             if (TextTwoOne) TextTwoOne.style.opacity = 0;
@@ -453,19 +476,29 @@ continueBtn.forEach(btn => {
                 void TextTwoTwo.offsetWidth;
                 TextTwoTwo.style.opacity = 1;
                 TextTwoTwo.classList.add('start-typing');
-                playTypingSound(9000);
+                playTypingSound(6000);
             }, 4000);
 
             setTimeout(() => {
-                setInjectionMode(true);
-            }, 14000);
-
-            setTimeout(() => {
                 TextTwoTwo.style.opacity = 0;
-            }, 17000);
+            }, 15000);
             setTimeout(() => {
                 TextTwoTwo.style.display = 'none';
-            }, 20000);
+            }, 17000);
+
+            setTimeout(() => {
+                InjectionHint.style.display = 'flex';
+                requestAnimationFrame(() => InjectionHint.style.opacity = 0.5);
+                setInjectionMode(true);
+            }, 18000);
+
+            setTimeout(() => {
+                requestAnimationFrame(() => InjectionHint.style.opacity = 0);
+            }, 25000);
+
+            setTimeout(() => {
+                InjectionHint.style.display = 'none';
+            }, 27000);
 
             setTimeout(() => {
                 TextTwoThree.style.display = 'flex';
@@ -474,8 +507,7 @@ continueBtn.forEach(btn => {
                 TextTwoThree.style.color = 'red';
                 TextTwoThree.classList.add('start-typing');
                 playTypingSound(6000);
-
-            }, 25000);
+            }, 28000);
 
             setTimeout(() => {
                 setInjectionMode(false);
@@ -530,6 +562,7 @@ continueBtn.forEach(btn => {
             const TextTwoSix = document.querySelector('.TypeWriter[data-id="26"]')
             const TextTwoSeven = document.querySelector('.normal[data-id="27"]')
             const okBtnTwoFour = document.querySelector('.continue-button[data-action="two-four-btn"]')
+            const BloodPressureHint = document.getElementById('blood-pressure-hint')
 
             if (TextTwoFive) TextTwoFive.style.opacity = 0;
             if (okBtnTwoThree) okBtnTwoThree.style.opacity = 0;
@@ -541,9 +574,16 @@ continueBtn.forEach(btn => {
 
             setTimeout(() => {
                 setMeasuringMode(true)
+                BloodPressureHint.style.display = 'flex';
+                requestAnimationFrame(() => BloodPressureHint.style.opacity = 0.5);
             }, 3000);
 
             setTimeout(() => {
+                requestAnimationFrame(() => BloodPressureHint.style.opacity = 0);
+            }, 10000);
+
+            setTimeout(() => {
+                BloodPressureHint.style.display = 'none';
                 TextTwoSix.style.display = 'flex';
                 void TextTwoSix.offsetWidth;
                 TextTwoSix.style.opacity = 1;
@@ -610,6 +650,7 @@ continueBtn.forEach(btn => {
             const TextTwoNine = document.querySelector('.TypeWriter[data-id="29"]')
             const TextTwoNineOne = document.querySelector('.normal[data-id="291"]')
             const okBtnTwoSix = document.querySelector('.continue-button[data-action="two-six-btn"]')
+            const hint = document.getElementById('embryo-hint');
 
             if (TextTwoEight) TextTwoEight.style.opacity = 0;
             if (okBtnTwoFive) okBtnTwoFive.style.opacity = 0;
@@ -617,14 +658,20 @@ continueBtn.forEach(btn => {
             setTimeout(() => {
                 TextTwoEight.style.display = 'none';
                 okBtnTwoFive.style.display = 'none';
+                hint.style.display = 'flex';
+                requestAnimationFrame(() => hint.style.opacity = 0.5);
             }, 2000);
 
             setTimeout(() => {
-                setInjectionMode(true);
+                setEmbryoMode(true);
             }, 3000);
 
+            setTimeout(() => {
+                requestAnimationFrame(() => hint.style.opacity = 0);
+            }, 10000);
 
             setTimeout(() => {
+                hint.style.display = 'none';
                 TextTwoNine.style.display = 'flex';
                 void TextTwoNine.offsetWidth;
                 TextTwoNine.style.opacity = 1;
@@ -644,7 +691,8 @@ continueBtn.forEach(btn => {
 
             setTimeout(() => {
                 TextTwoNineOne.style.opacity = 1;
-                setInjectionMode(false)
+
+                setEmbryoMode(false);
                 okBtnTwoSix.style.display = 'flex'
             }, 30000);
 
@@ -712,13 +760,20 @@ continueBtn.forEach(btn => {
             setTimeout(() => {
                 okBtnThreeTwo.style.pointerEvents = 'auto';
                 okBtnThreeTwo.style.opacity = 1;
-            }, 12000)
+            }, 14000)
         }
 
         else if (action === "three-two-btn") {
             const TextThreeTwo = document.querySelector('.TypeWriter[data-id="32"]')
             const okBtnThreeTwo = document.querySelector('.continue-button[data-action="three-two-btn"]')
-
+            const BabyHint = document.getElementById('baby-hint')
+            const TextThreeFour = document.querySelector('.TypeWriter[data-id="34"]')
+            const TextThreeFive = document.querySelector('.TypeWriter[data-id="35"]')
+            const TextContact = document.querySelector('.contact[data-id="3"]');
+            const okBtnThreeThree = document.querySelector('.continue-button[data-action="three-three-btn"]')
+            const sigPreview = document.getElementById('signature-preview');
+            const savedSig = localStorage.getItem('userSignature');
+            sigPreview.src = savedSig;
 
             if (TextThreeTwo) TextThreeTwo.style.opacity = 0;
             if (okBtnThreeTwo) okBtnThreeTwo.style.opacity = 0;
@@ -727,13 +782,104 @@ continueBtn.forEach(btn => {
                 TextThreeTwo.style.display = 'none';
                 okBtnThreeTwo.style.display = 'none';
                 setBabyMode(true);
+                BabyHint.style.display = 'flex';
             }, 2000)
+
+            setTimeout(() => {
+                BabyHint.style.opacity = 0.5;
+            }, 4000)
+
+            setTimeout(() => {
+                BabyHint.style.opacity = 0;
+            }, 8000)
+
+            setTimeout(() => {
+                BabyHint.style.display = 'none';
+                TextThreeFour.style.display = 'flex';
+                void TextThreeFour.offsetWidth;
+                TextThreeFour.style.opacity = 1;
+                TextThreeFour.style.color = 'red';
+                TextThreeFour.classList.add('start-typing');
+                playTypingSound(6000);
+            }, 12000)
+
+            setTimeout(() => {
+                requestAnimationFrame(() => TextThreeFour.style.opacity = 0);
+                TextThreeFour.style.display = 'none';
+            }, 22000)
+
+            setTimeout(() => {
+                TextThreeFive.style.display = 'flex';
+                void TextThreeFive.offsetWidth;
+                TextThreeFive.style.opacity = 1;
+                TextThreeFive.style.color = 'red';
+                TextThreeFive.classList.add('start-typing');
+                playTypingSound(3000);
+
+            }, 26000)
+
+            setTimeout(() => {
+                requestAnimationFrame(() => TextThreeFive.style.opacity = 0);
+                setBabyMode(false);
+            }, 32000)
+
+            setTimeout(() => {
+                TextThreeFive.style.display = 'none';
+            }, 34000)
+
+
+            setTimeout(() => {
+                TextContact.style.display = 'flex';
+                okBtnThreeThree.style.display = 'flex';
+                requestAnimationFrame(() => TextContact.style.opacity = 1);
+                requestAnimationFrame(() => okBtnThreeThree.style.opacity = 1);
+                okBtnThreeThree.style.pointerEvents = 'auto';
+                sigPreview.style.display = 'block';
+            }, 38000)
+
+            setTimeout(() => {
+                sigPreview.style.opacity = 1;
+            }, 40000)
+
         }
 
+        else if (action === 'three-three-btn') {
+            const TextContact = document.querySelector('.contact[data-id="3"]');
+            const okBtnThreeThree = document.querySelector('.continue-button[data-action="three-three-btn"]')
+            const TextFourOne = document.querySelector('.TypeWriter[data-id="41"]');
+            const okBtn = document.querySelector('.continue-button[data-action="four-one-btn"]')
+            const sigPreview = document.getElementById('signature-preview');
+            const savedSig = localStorage.getItem('userSignature');
+            sigPreview.src = savedSig;
+
+            if (TextContact) TextContact.style.opacity = 0;
+            if (okBtnThreeThree) okBtnThreeThree.style.opacity = 0;
+            if (sigPreview) sigPreview.style.opacity = 0;
 
 
+            setTimeout(() => {
+                TextContact.style.display = 'none';
+                okBtnThreeThree.style.display = 'none';
+                sigPreview.style.display = 'none';
+                savedSig.style.display = 'none';
+            }, 2000)
 
+            setTimeout(() => {
+                goToScene('FourthScene');
+                TextFourOne.style.display = 'flex';
+                void TextFourOne.offsetWidth;
+                TextFourOne.style.opacity = 1;
+                TextFourOne.classList.add('start-typing');
+                playTypingSound(3000);
+                okBtn.style.display = 'flex';
+            }, 5000);
 
+            setTimeout(() => {
+                okBtn.style.pointerEvents = 'auto';
+                okBtn.style.opacity = 1;
+            }, 9000)
+
+        }
 
         //第四幕
         //好痛苦
@@ -757,12 +903,12 @@ continueBtn.forEach(btn => {
                     TextFourTwo.style.opacity = 1;
                     TextFourTwo.classList.add('start-typing');
                     playTypingSound(3000);
+                    okBtnFourTwo.style.display = 'flex';
                 }
             }, 2000);
 
             setTimeout(() => {
                 if (okBtnFourTwo) {
-                    okBtnFourTwo.style.display = 'flex';
                     okBtnFourTwo.style.pointerEvents = 'auto';
                     requestAnimationFrame(() => okBtnFourTwo.style.opacity = 1);
                 }
@@ -788,7 +934,7 @@ continueBtn.forEach(btn => {
                 if (okBtnFourTwo) okBtnFourTwo.style.display = 'none';
 
                 if (FinalDecision) {
-                    FinalDecision.style.display = 'block';
+                    FinalDecision.style.display = 'flex';
                     requestAnimationFrame(() => FinalDecision.style.opacity = 1);
                 }
 
@@ -814,77 +960,77 @@ continueBtn.forEach(btn => {
         }
 
         //最後選項
-        else if (action === 'four-three-btn' || action === 'four-four-btn' || action === 'four-five-btn') {
-            const FinalDecision = document.querySelector('.final-decision');
-            const TextFourThree = document.querySelector('.TypeWriter[data-id="43"]');
-            const TextFourFour = document.querySelector('.TypeWriter[data-id="44"]');
-            const endOptions = document.querySelector('.end-options');
-            const restartBtn = document.querySelector('.continue-button[data-action="restart"]')
-            const backgroundBtn = document.querySelector('.continue-button[data-action="pure-background"]')
-
-            console.log(e.target.dataset.action);
-
-            if (FinalDecision) FinalDecision.style.opacity = 0;
-            if (TextFourThree) TextFourThree.style.opacity = 0;
-
-            setTimeout(() => {
-                if (TextFourThree) TextFourThree.style.display = 'none';
-                if (FinalDecision) FinalDecision.style.display = 'none';
-
-                if (TextFourFour) {
-                    TextFourFour.style.display = 'flex';
-                    void TextFourFour.offsetWidth;
-                    TextFourFour.style.opacity = 1;
-                    TextFourFour.classList.add('start-typing');
-                    playTypingSound(3000);
-                }
-            }, 2000)
-
-            setTimeout(() => {
-                if (endOptions) {
-                    endOptions.style.display = 'flex';
-                    requestAnimationFrame(() => endOptions.style.opacity = 1);
-                    restartBtn.style.pointerEvents = 'auto';
-                    restartBtn.style.display = 'flex';
-                    backgroundBtn.style.display = 'flex';
-                    backgroundBtn.style.pointerEvents = 'auto';
-                }
-            }, 6000);
-
-            setTimeout(() => {
-                requestAnimationFrame(() => restartBtn.style.opacity = 1);
-                requestAnimationFrame(() => backgroundBtn.style.opacity = 1);
-            }, 1000);
+        else if (action === 'four-three-btn') {
+            handleVote('support');
         }
+        else if (action === 'four-four-btn') {
+            handleVote('oppose');
+        }
+        else if (action === 'four-five-btn') {
+            handleVote('pause');
+        }
+
 
         //再玩一次
         else if (action === 'restart') {
-            const endOptions = document.querySelector('.end-options');
-            const TextFourFour = document.querySelector('.TypeWriter[data-id="44"]');
+                const endOptions = document.querySelector('.end-options');
+                const TextFourFour = document.querySelector('.TypeWriter[data-id="44"]');
 
-            if (endOptions) endOptions.style.opacity = 0;
-            if (TextFourFour) TextFourFour.style.opacity = 0;
-
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        }
-        //看結尾
-        else if (action === 'pure-background') {
-            const FourthScene = document.querySelector('.FourthScene');
-
-            if (FourthScene) {
-                FourthScene.style.transition = 'opacity 2s ease';
-                FourthScene.style.opacity = 0;
+                if (endOptions) endOptions.style.opacity = 0;
+                if (TextFourFour) TextFourFour.style.opacity = 0;
 
                 setTimeout(() => {
-                    FourthScene.style.display = 'none';
-                    FourthScene.classList.remove('active');
-                }, 2000);
+                    window.location.reload();
+                }, 1000);
             }
-        }
+            //看結尾
+            else if (action === 'pure-background') {
+                const FourthScene = document.querySelector('.FourthScene');
 
-    });
+                if (FourthScene) {
+                    FourthScene.style.transition = 'opacity 2s ease';
+                    FourthScene.style.opacity = 0;
+
+                    setTimeout(() => {
+                        FourthScene.style.display = 'none';
+                        FourthScene.classList.remove('active');
+                    }, 2000);
+                }
+
+                fetch('/api/vote-stats')
+                    .then(res => res.json())
+                    .then(stats => {
+                        let winner = 'support';
+                        let maxVotes = stats.support;
+
+                        if (stats.oppose > maxVotes) {
+                            winner = 'oppose';
+                            maxVotes = stats.oppose;
+                        }
+                        if (stats.pause > maxVotes) {
+                            winner = 'pause';
+                        }
+
+                        console.log("Winner is:", winner);
+
+                        if (typeof setEndingMood === 'function') {
+                            setEndingMood(winner);
+                        }
+                    });
+
+                setTimeout(() => {
+                    fetch('/api/all-signatures')
+                        .then(res => res.json())
+                        .then(fileList => {
+                            console.log("載入簽名數量:", fileList.length);
+                            if (typeof triggerFloatingSignatures === 'function') {
+                                triggerFloatingSignatures(fileList);
+                            }
+                        });
+                }, 3000);
+            }
+
+        });
 });
 
 
@@ -1066,25 +1212,123 @@ if (clearBtn) {
     });
 }
 
+
 if (confirmSignBtn) {
     confirmSignBtn.addEventListener('click', () => {
-        const dataUrl = canvas.toDataURL();
+        const canvas = document.getElementById('drawing-board');
+
+        const dataUrl = canvas.toDataURL('image/png');
 
         if (typeof updateSignature === 'function') {
             updateSignature(dataUrl);
-        } else {
-            console.warn("找不到 updateSignature 函式，請確認 sketch.js 是否正確載入");
         }
 
-        const sigContainer = document.getElementById('signature-container');
-        const TextFive = document.querySelector('.TypeWriter[data-id="5"]');
+        submitSignature(dataUrl);
+    });
+}
 
-        if (sigContainer) sigContainer.style.opacity = 0;
-        if (TextFive) TextFive.style.opacity = 0;
+function submitSignature(dataUrl) {
 
-        setTimeout(() => {
-            if (sigContainer) sigContainer.style.display = 'none';
-            if (TextFive) TextFive.style.display = 'none';
-        }, 1500);
+    fetch('/api/save-signature', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image: dataUrl })
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log("簽名已存檔:", data.filename);
+            if (typeof loadUserSignature === 'function') {
+                loadUserSignature(`./images/signature/${data.filename}`);
+            }
+        })
+
+    localStorage.setItem('userSignature', dataUrl);
+}
+
+
+
+function handleVote(decision) {
+    document.querySelectorAll('.final-decision button').forEach(btn => {
+        btn.disabled = true;
+
+        if (!btn.querySelector('h1').textContent.includes(decision === 'support' ? '支持' : decision === 'oppose' ? '反對' : '暫停')) {
+            btn.style.opacity = 0.3;
+        }
+    });
+
+    fetch('/api/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision: decision })
+    })
+        .then(res => res.json())
+        .then(data => {
+            console.log("投票成功");
+        }
+        )
+
+    const FinalDecision = document.querySelector('.final-decision');
+    const TextFourThree = document.querySelector('.TypeWriter[data-id="43"]');
+    const TextFourFour = document.querySelector('.TypeWriter[data-id="44"]');
+    const endOptions = document.querySelector('.end-options');
+    const restartBtn = document.querySelector('.continue-button[data-action="restart"]')
+    const backgroundBtn = document.querySelector('.continue-button[data-action="pure-background"]')
+
+    //console.log(e.target.dataset.action);
+
+    if (FinalDecision) FinalDecision.style.opacity = 0;
+    if (TextFourThree) TextFourThree.style.opacity = 0;
+
+    setTimeout(() => {
+        if (TextFourThree) TextFourThree.style.display = 'none';
+        if (FinalDecision) FinalDecision.style.display = 'none';
+
+        if (TextFourFour) {
+            TextFourFour.style.display = 'flex';
+            void TextFourFour.offsetWidth;
+            TextFourFour.style.opacity = 1;
+            TextFourFour.classList.add('start-typing');
+            playTypingSound(3000);
+        }
+    }, 2000)
+
+    setTimeout(() => {
+        if (endOptions) {
+            endOptions.style.display = 'flex';
+            requestAnimationFrame(() => endOptions.style.opacity = 1);
+            restartBtn.style.pointerEvents = 'auto';
+            restartBtn.style.display = 'flex';
+            backgroundBtn.style.display = 'flex';
+            backgroundBtn.style.pointerEvents = 'auto';
+        }
+    }, 6000);
+
+    setTimeout(() => {
+        requestAnimationFrame(() => restartBtn.style.opacity = 1);
+        requestAnimationFrame(() => backgroundBtn.style.opacity = 1);
+    }, 1000);
+}
+
+
+
+function updateVoteDisplay(stats) {
+    const supportElement = document.querySelector('[data-action="four-three-btn"] h1');
+    const opposeElement = document.querySelector('[data-action="four-four-btn"] h1');
+    const pauseElement = document.querySelector('[data-action="four-five-btn"] h1');
+
+    const total = stats.total;
+
+    const supportPercent = total > 0 ? (stats.support / total * 100).toFixed(1) : 0;
+    const opposePercent = total > 0 ? (stats.oppose / total * 100).toFixed(1) : 0;
+    const pausePercent = total > 0 ? (stats.pause / total * 100).toFixed(1) : 0;
+
+    if (supportElement) supportElement.textContent = `支持 (${supportPercent}%)`;
+    if (opposeElement) opposeElement.textContent = `反對 (${opposePercent}%)`;
+    if (pauseElement) pauseElement.textContent = `暫停 (${pausePercent}%)`;
+
+    document.querySelectorAll('.final-decision button p').forEach(p => {
+        p.style.opacity = 0;
     });
 }

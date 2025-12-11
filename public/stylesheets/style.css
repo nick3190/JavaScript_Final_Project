@@ -1,9 +1,13 @@
+@charset "UTF-8";
+
 @font-face {
   font-family: 'prettyFont';
-  src: url('fonts/Songti.ttc') format('woff2'),
-    url('fonts/Songti.ttc') format('woff');
-  font-weight: normal;
+  src: url(fonts/SourceHanSerifCN-Bold.woff2) format('woff2');
+  /*src: url('fonts/Songti.ttc') format('woff2'),
+    url('fonts/Songti.ttc') format('woff');*/
   font-style: normal;
+  font-weight: 0 1000;
+  font-display: swap;
 }
 
 body {
@@ -87,18 +91,33 @@ canvas {
   transition: opacity 1.5s ease;
 }
 
+.contact {
+  display: none;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+
+  width: auto;
+  height: auto;
+
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 100px;
+  padding: 50px;
+  font-size: 28px;
+  font-family: 'prettyFont', sans-serif;
+  color: white;
+  letter-spacing: 0.1em;
+  line-height: 2em;
+  text-align: left;
+
+  transition: opacity 2s ease-in-out;
+}
 
 .signature-container {
   display: none;
   opacity: 0;
-
-  position: absolute;
-  top: 65%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  width: 800px;
-  max-width: 80vw;
+  position: relative;
 
   flex-direction: column;
   align-items: center;
@@ -112,19 +131,18 @@ canvas {
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  width: 70vw;
+  height: 20vh;
 }
 
 #drawing-board {
-  margin-top: 200px;
+  position: inherit;
   background-color: rgba(0, 0, 0, 0.5);
-  width: 100%;
-  height: auto;
   cursor: crosshair;
-  display: block;
 }
 
 .sig-buttons {
-  margin-top: 500px;
+  margin-top: 3vh;
   display: none;
   opacity: 0;
   gap: 20px;
@@ -132,37 +150,44 @@ canvas {
   transition: opacity 1.5s ease-in-out;
 }
 
+#signature-preview {
+  background-color: transparent;
+}
+
+.final-decision {
+  width: 100%;
+  height: auto;
+  display: flex;
+  opacity: 0;
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 1.5s ease;
+}
+
 .final-decision .continue-button {
   width: 60%;
-  height: auto;
+  height: 15vh;
   flex-direction: column;
-  padding: 20px;
-  margin: 50px auto;
+  padding: 100px 50px;
+  margin: 20px;
   display: none;
   opacity: 0;
 
   transition: opacity 2s ease;
 }
 
-.final-decision .continue-button h3 {
-  margin: 0 0 10px 0;
-  font-size: 28px;
+.final-decision .continue-button h1 {
+  margin: 0;
+  font-size: 36px;
   transition: opacity 1s ease;
 }
 
 .final-decision .continue-button p {
-  font-size: 20px;
+  font-size: 23px;
   line-height: 1.5;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.5em;
   white-space: normal;
   transition: opacity 1s ease;
-}
-
-.final-decision {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .end-options {
@@ -184,10 +209,12 @@ canvas {
 
 .text-click {
   display: none;
-  position: absolute;
+  justify-content: center;
+  position: fixed;
   top: 50%;
-  left: 53%;
-  transform: translate(-50%, -50%);
+  left: 50%;
+
+
   width: auto;
   height: auto;
   opacity: 0;
@@ -202,6 +229,7 @@ canvas {
 
   transition: opacity 1.5s ease-in-out;
   animation: textShine 3s ease-in-out infinite;
+  transform-origin: center;
 }
 
 .title {
@@ -261,7 +289,7 @@ canvas {
 
   color: white;
   font-size: 20px;
-  letter-spacing: 1.9em;
+  letter-spacing: 1.3em;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -307,6 +335,18 @@ canvas {
   animation-delay: 0.8s;
 }
 
+.sub-title span:nth-child(10) {
+  animation-delay: 0.1s;
+}
+
+.sub-title span:nth-child(11) {
+  animation-delay: 0.35s;
+}
+
+.sub-title span:nth-child(12) {
+  animation-delay: 0.65s;
+}
+
 .normal {
   display: none;
   width: 70vw;
@@ -333,7 +373,6 @@ canvas {
   flex-direction: column;
   align-items: center;
 
-
   opacity: 1;
   transition: opacity 1.5s ease;
 }
@@ -351,46 +390,33 @@ canvas {
   border-right: 2px solid transparent;
 
   margin-bottom: 30px;
+
+  --steps: 20;
+  --duration: 3s;
 }
 
 .TypeWriter.start-typing span:nth-child(1) {
   animation:
-    typing 3s steps(30, end) forwards,
-    blink .75s step-end 5;
+    typing 3s steps(var(--steps), end) forwards,
+    blink .75s step-end infinite;
 }
 
 .TypeWriter.start-typing span:nth-child(2) {
   animation:
-    typing 3s steps(20, end) forwards,
-    blink .75s step-end 3;
-
+    typing 3s steps(var(--steps), end) forwards,
+    blink .75s step-end infinite;
   animation-delay: 4s;
 }
 
 .TypeWriter.start-typing span:nth-child(3) {
   animation:
-    typing 3s steps(20, end) forwards,
-    blink .75s step-end 3;
-
+    typing 3s steps(var(--steps), end) forwards,
+    blink .75s step-end infinite;
   animation-delay: 8s;
 }
 
 
-.contact {
-  display: none;
-  opacity: 0;
-  background-color: rgba(0, 0, 0, 0);
-  border-radius: 100px;
-  padding: 50px;
-  font-size: 24px;
-  font-family: 'prettyFont', sans-serif;
-  color: white;
-  letter-spacing: 0.1em;
-  line-height: 2em;
-  text-align: left;
 
-  transition: opacity 2s ease-in-out;
-}
 
 /*-------------------- Buttons Styles --------------------*/
 
@@ -462,6 +488,61 @@ canvas {
   transform: scale(0.95);
 }
 
+.scroll-hint {
+  display: none;
+  flex-direction: column; 
+  align-items: center;    
+  justify-content: center;
+  width: auto;
+  height:auto;
+
+  position: fixed;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  text-align: center;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.5;
+
+  transition: opacity 2s ease;
+}
+
+.scroll-hint p {
+  font-size: 24px;
+  margin-top: 20px;
+  text-shadow: 0 0 5px black;
+  font-family: 'prettyFont', sans-serif;
+  letter-spacing: 0.5em;
+  white-space: nowrap;
+
+  animation: textShine 3s ease-in-out infinite;
+}
+
+.arrow {
+  width: 40px;
+  height: 40px;
+  border-left: 3px solid white;
+  border-top: 3px solid white;
+  animation: arrowMove 1.5s infinite;
+}
+
+@keyframes arrowMove {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(0, -40px) scale(1.3);
+    opacity: 0;
+  }
+}
+
 @keyframes shine {
 
   0%,
@@ -479,10 +560,14 @@ canvas {
   0%,
   100% {
     text-shadow: 0 0px 50px rgba(255, 255, 255, 0);
+    transform: scale(1) translate(-50%, -50%) translateX(1em);
+
   }
 
   50% {
     text-shadow: 0 0px 50px rgba(255, 255, 255, 1);
+    transform: scale(1.05) translate(-50%, -50%) translateX(1em);
+
   }
 }
 
@@ -513,8 +598,8 @@ canvas {
   }
 
   50% {
-    transform: translateY(-10px) skew(0deg) scaleX(0.9) scaleY(1.1);
-    filter: blur(0.02em);
+    transform: translateY(-10px) skew(5deg) scaleX(0.9) scaleY(1.1);
+    filter: blur(0.01em);
   }
 }
 
@@ -524,7 +609,7 @@ canvas {
   }
 
   to {
-    width: 100%;
+    width: var(--width);
   }
 }
 

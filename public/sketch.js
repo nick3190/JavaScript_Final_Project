@@ -1,9 +1,24 @@
 const INITIAL_AMP = 100;
-const MAX_AMP = 150;
 const INITIAL_SPEED = 0.005;
-const MAX_SPEED = 0.08;
-const MAX_PRESS = 600;
-const CRITICAL_LIMIT = 800;
+
+const STATE = {
+    INITIAL: 0,
+    POST_INJECT: 1,
+    POST_BP: 2,
+    EMBRYO: 3,
+    POST_EMBRYO: 4,
+    BABY: 5,
+    GONE: 6,
+    ENDING: 7
+};
+
+let userSignatureImg = null;
+let signatureCanvasInstance = null;
+
+let floatingSignatures = [];
+let signatureImages = [];
+
+let currentSceneState = STATE.INITIAL;
 
 let params = {
     speed: INITIAL_SPEED,
@@ -17,71 +32,168 @@ let params = {
 };
 
 let t = 0;
-let userSignatureImg = null;
-let bodyImg, needleImg, babyImg, stethoscopeImg;
+let bodyImg, needleImg, babyImg, stethoscopeImg, uterusImg;
 let imgX, imgY, imgW, imgH;
 
+let press = 0;
+let currentBP = 0;
+let needleY = 0;
 
-let press = 0;        // 壓力值（打針）
-let currentBP = 0;    // 血壓值（量血壓）
-
-// 遊戲場景開關
-let showInjection = false;  // 打針
-let showMeasure = false;    // 量血壓
-let showBabyMode = false;   // 嬰兒
-
-// 嬰兒參數
 let babyScale = 1.0;
-let babyGone = false;
-let isDead = false;
-let glitchTimer = 0;
+let babySceneTime = 0;
+let babyPullForce = 0.02;
+
+let showInjection = false;
+let showMeasure = false;
+let showEmbryo = false;
+let showBabyMode = false;
+
+let uterusW, uterusH;
 
 function preload() {
     bodyImg = loadImage('./images/bodyPic.png');
     needleImg = loadImage('./images/needle.png');
     babyImg = loadImage('./images/baby.png');
     stethoscopeImg = loadImage('./images/stethoscope.png');
+    uterusImg = loadImage('./images/uterus.png');
 }
 
 function setup() {
+    //抓後端
+    fetch('/api/config')
+        .then(response => response.json())
+        .then(config => {
+            Object.assign(params, config);
+            console.log("視覺參數已從伺服器載入");
+        })
+        .catch(err => console.error("無法載入設定，使用預設值"));
+
+
     createCanvas(window.innerWidth, window.innerHeight);
     colorMode(HSB, 360, 100, 100, 100);
     imageMode(CENTER);
     noFill();
     cursor();
-
     calculateImageBounds();
-    setShakeThreshold(30);
 }
 
 function draw() {
-    if (showBabyMode) {
-        updateBabySceneParams();
-    } else if (showMeasure) {
-        updateEnvironmentParams(); 
-    } else {
-        updateInjectionParams();
-    }
+    updateSceneVisuals();
 
     background(params.bgColor[0], params.bgColor[1], params.bgColor[2], params.trail);
 
-    if (showInjection || showMeasure) {
-        drawBodyAndNeedle();
-        if (showMeasure) {
-            drawBloodPressureUI();
-        }
+    drawSceneContent();
+
+    drawWaves();
+
+    drawTools();
+
+    if (window.showSignatureDisplay === true) {
+        if (!signatureCanvasInstance) initSignatureCanvas();
+        drawSignature();
     }
 
-    else if (showBabyMode) {
-        drawBabyScene();
+    if (showMeasure) {
+        drawBloodPressureUI();
+    }
+    if (currentSceneState === STATE.ENDING) {
+        drawFloatingSignatures();
+    }
+}
+
+function updateSceneVisuals() {
+    let targetAmp = INITIAL_AMP;
+    let targetSpeed = INITIAL_SPEED;
+    let targetHue = 210;
+    let targetSat = 80;
+
+    switch (currentSceneState) {
+        case STATE.INITIAL:
+            targetHue = 210;
+            targetAmp = 100;
+            break;
+
+        case STATE.POST_INJECT:
+            targetHue = 270;
+            targetAmp = 150;
+            targetSpeed = 0.02;
+            break;
+
+        case STATE.POST_BP:
+            targetHue = 330;
+            targetAmp = 200;
+            targetSpeed = 0.04;
+            break;
+
+        case STATE.EMBRYO:
+            let depth = map(needleY, height, height / 2, 0, 1, true);
+            targetHue = map(depth, 0, 1, 330, 360);
+            targetAmp = map(depth, 0, 1, 200, 400);
+            targetSpeed = map(depth, 0, 1, 0.04, 0.1);
+            break;
+
+        case STATE.POST_EMBRYO:
+            targetHue = 210;
+            targetAmp = 100;
+            targetSpeed = INITIAL_SPEED;
+            break;
+
+        case STATE.BABY:
+            targetHue = map(press, 0, 500, 20, 0);
+            targetAmp = map(press, 0, 500, 100, 300);
+            targetSpeed = map(press, 0, 500, 0.01, 0.1);
+            break;
+
+        case STATE.GONE:
+            targetHue = 0;
+            targetSat = 0;
+            targetAmp = 50;
+            targetSpeed = 0.005;
+            break;
+        case STATE.ENDING:
+            targetAmp = params.amp;
+            targetSpeed = params.speed;
+            targetHue = params.bgColor[0];
+            targetSat = params.bgColor[1];
+            break;
     }
 
-    if (glitchTimer > 0) {
-        drawGlitchEffect();
-        glitchTimer--;
+    if (showInjection && mouseIsPressed && checkMouseOverBody()) {
+        targetHue = 360;
+        let interactiveAmp = map(press, 0, 200, 0, 100);
+        let interactiveSpeed = map(press, 0, 200, 0.001, 0.015)
+        targetAmp += interactiveAmp;
+        targetSpeed += interactiveSpeed;
+        targetAmp = constrain(targetAmp, 100, 200);
+        targetSpeed = constrain(targetSpeed, 0.005, 0.02)
+        press += 2;
     }
 
+    params.amp = lerp(params.amp, targetAmp, 0.05);
+    params.speed = lerp(params.speed, targetSpeed, 0.05);
+
+    let currentHue = params.bgColor[0];
+    let newHue = lerp(currentHue, targetHue, 0.05);
+
+    if (currentSceneState !== STATE.ENDING && currentSceneState !== STATE.GONE) {
+        let currentHue = params.bgColor[0];
+        let newHue = lerp(currentHue, targetHue, 0.05);
+        params.bgColor = [newHue, targetSat, 20, 100];
+        params.lineColor = [newHue - 10, targetSat - 20, 90, 80];
+    }
+
+    else if (currentSceneState === STATE.GONE) {
+        params.bgColor = [0, 0, 5, 100];
+        params.lineColor = [0, 0, 50, 50];
+    } else {
+        params.bgColor = [newHue, targetSat, 20, 100];
+        params.lineColor = [newHue - 10, targetSat - 20, 90, 80];
+    }
+}
+
+function drawWaves() {
     strokeWeight(1.5);
+    noFill();
     noTint();
 
     for (let y = 100; y < height; y += params.layerGap) {
@@ -91,280 +203,404 @@ function draw() {
         for (let x = 0; x <= width; x += params.curveRes) {
             let noiseVal = noise(x * params.density, y * 0.02, t);
             let waveHeight = map(noiseVal, 0, 1, -params.amp, params.amp);
-            if (isDead) waveHeight *= 0.2;
             vertex(x, y + waveHeight);
         }
         endShape();
     }
     t += params.speed;
-
-    if (showInjection && needleImg) {
-        noTint();
-        image(needleImg, mouseX, mouseY, 64, 64);
-    } else if (showMeasure && stethoscopeImg) {
-        noTint();
-        image(stethoscopeImg, mouseX, mouseY, 64, 64);
-    }
 }
 
-// 打針
-function updateInjectionParams() {
-    let isInjecting = checkInjectionState();
-
-    if (isInjecting) {
-        press += 2;
-        if (press > MAX_PRESS) press = MAX_PRESS;
-
-        params.bgColor = [0, 90, 40, 100];
-        params.lineColor = [0, 0, 100];
-
-        params.amp = map(press, 0, MAX_PRESS, INITIAL_AMP, MAX_AMP);
-        params.speed = map(press, 0, MAX_PRESS, INITIAL_SPEED, MAX_SPEED);
-    } else {
-        updateEnvironmentParams();
-    }
-}
-
-
-function updateEnvironmentParams() {
-    params.amp = map(press, 0, MAX_PRESS, INITIAL_AMP, MAX_AMP);
-    params.speed = map(press, 0, MAX_PRESS, INITIAL_SPEED, MAX_SPEED);
-
-    let bgHue = map(press, 0, MAX_PRESS, 210, 320);
-    let bgSat = map(press, 0, MAX_PRESS, 80, 60);
-    let bgBri = map(press, 0, MAX_PRESS, 20, 15);
-    params.bgColor = [bgHue, bgSat, bgBri, 100];
-
-    let lineHue = map(press, 0, MAX_PRESS, 200, 320);
-    let lineSat = map(press, 0, MAX_PRESS, 60, 40);
-    let lineBri = map(press, 0, MAX_PRESS, 90, 80);
-    params.lineColor = [lineHue, lineSat, lineBri];
-}
-
-
-function updateBabySceneParams() {
-    if (isDead) {
-        params.bgColor = [0, 0, 10, 100];
-        params.lineColor = [0, 0, 40];
-        params.speed = 0.002;
-        params.amp = 20;
-        return;
-    }
-
-    if (babyGone) {
-        let chaosHue = map(press, 0, CRITICAL_LIMIT, 210, 360);
-        let chaosSat = map(press, 0, CRITICAL_LIMIT, 50, 100);
-
-        params.bgColor = [chaosHue, chaosSat, 20, 100];
-        params.lineColor = [chaosHue, 20, 100];
-        params.amp = map(press, 0, CRITICAL_LIMIT, 50, 300);
-        params.speed = map(press, 0, CRITICAL_LIMIT, 0.01, 0.2);
-
-        if (press >= CRITICAL_LIMIT) triggerGlitchAndDie();
-    } else {
-        params.bgColor = [210, 60, 30, 100];
-        params.lineColor = [200, 40, 90];
-    }
-}
-
-function drawBodyAndNeedle() {
+function drawSceneContent() {
     let drawX = imgX;
     let drawY = imgY;
 
-    let isInjecting = checkInjectionState();
-    let isMeasuring = checkMeasureState();
+    if (currentSceneState === STATE.EMBRYO || showEmbryo) {
+        if (uterusImg) {
 
-    if (bodyImg) {
-        if (isInjecting) {
-            tint(0, 80, 100, 100);
-            let shake = press / 100 + 5;
-            drawX += random(-shake, shake);
-            drawY += random(-shake, shake);
-        } else {
-            let bodyRestHue = map(press, 0, MAX_PRESS, 200, 360);
-            tint(bodyRestHue, 80 ,100,100);
+            let depth = map(needleY, height, height / 2, 0, 1, true);
+            let baseColor = color(0, 0, 100);
+            let targetColor = color(0, 100, 100);
+            let redAmount = map(depth, 0.5, 1.0, 0, 1, true);
+            let finalColor = lerpColor(baseColor, targetColor, redAmount);
+            tint(finalColor);
+            let shake = map(depth, 0, 1, 0, 5, true); 
+            image(uterusImg, width / 2 + random(-shake, shake), height / 2, uterusW, uterusH);
+            noTint();
+        }
+    }
+    else if (currentSceneState === STATE.BABY) {
+        updateBabyLogic();
+        if (babyImg && babyScale > 0) {
+            let alpha = map(babyScale, 0, 1, 0, 100);
+            tint(0, 0, 100, alpha);
+            image(babyImg, width / 2, height / 2, babyImg.width * babyScale, babyImg.height * babyScale);
+        }
+    }
+    else if (currentSceneState !== STATE.GONE) {
+        if (showInjection || showMeasure) {
+            if (bodyImg) {
+                let bodyHue = params.bgColor[0];
 
-            if (isMeasuring) {
-                tint(bodyRestHue, 50, 100, 100);
-            } else {
-                let isHovering = checkMouseOverBody();
-                if (isHovering) tint(bodyRestHue, 40, 100, 90);
-                else tint(bodyRestHue, 60, 80, 80);
+                if (showInjection && mouseIsPressed && checkMouseOverBody()) {
+                    tint(360, 80, 100);
+                    let shake = 5;
+                    drawX += random(-shake, shake);
+                    drawY += random(-shake, shake);
+                } else {
+                    tint(bodyHue, 50, 100);
+                }
+                image(bodyImg, drawX, drawY, imgW, imgH);
             }
         }
-        image(bodyImg, drawX, drawY, imgW, imgH);
     }
+}
 
-    if (userSignatureImg) {
-        tint(0, 0, 100, 80);
-        image(userSignatureImg, drawX, drawY, imgW, imgH / 2);
+function drawTools() {
+    if (showInjection && needleImg) {
+        noTint();
+        image(needleImg, mouseX, mouseY, 64, 64);
+    }
+    else if (showMeasure && stethoscopeImg) {
+        noTint();
+        image(stethoscopeImg, mouseX, mouseY, 64, 64);
+    }
+    else if (showEmbryo && needleImg) {
+        handleEmbryoInteraction();
+        noTint();
+        image(needleImg, width / 2, needleY, 150, 150);
     }
 }
 
 function drawBloodPressureUI() {
-    let isMeasuring = checkMeasureState();
-
-    if (isMeasuring) currentBP += 1;
-    else currentBP -= 2;
-
-    currentBP = constrain(currentBP, 0, 180);
+    if (mouseIsPressed && checkMouseOverBody()) {
+        currentBP += 3.5;
+    } else {
+        currentBP -= 2;
+    }
+    currentBP = constrain(currentBP, 0, 220);
 
     if (currentBP > 0) {
-        let barW = 300;
-        let barH = 20;
-        let barX = width / 2 - barW / 2;
+        let barX = width / 2;
         let barY = height - 100;
+        let barW = 300;
+
+        let isCritical = currentBP > 160;
+        let barHue = isCritical ? 0 : 120;
 
         noStroke();
         fill(0, 0, 30, 80);
+        rectMode(CENTER);
+        rect(barX, barY, barW, 20, 10);
+
+        fill(barHue, 80, 90);
+        let progress = map(currentBP, 0, 200, 0, barW);
         rectMode(CORNER);
-        rect(barX, barY, barW, barH, 10);
-
-        let progress = map(currentBP, 0, 180, 0, barW);
-        let barHue = map(currentBP, 80, 180, 120, 0);
-        barHue = constrain(barHue, 0, 120);
-
-        fill(barHue, 80, 90, 100);
-        rect(barX, barY, progress, barH, 10);
+        rect(barX - barW / 2, barY - 10, progress, 20, 10);
 
         fill(0, 0, 100);
         textAlign(CENTER, BOTTOM);
         textSize(24);
-        text(Math.floor(currentBP) + " mmHg", width / 2, barY - 10);
+        text(Math.floor(currentBP) + " mmHg", barX, barY - 15);
 
-        rectMode(CENTER);
-        textAlign(CENTER, CENTER);
-    }
-}
+        if (isCritical) {
+            fill(0, 100, 100);
+            textSize(30);
+            text("⚠️ 警告！血壓過高！⚠️", barX, barY - 50);
 
-function drawBabyScene() {
-    if (isDead) return;
-
-    if (!babyGone && babyImg) {
-        babyScale -= 0.001;
-        if (babyScale <= 0.001) {
-            babyScale = 0;
-            babyGone = true;
-            press = 0;
-        }
-
-        let alpha = map(babyScale, 0, 1, 0, 100);
-        tint(0, 0, 100, alpha);
-
-        let bW = babyImg.width * babyScale;
-        let bH = babyImg.height * babyScale;
-        image(babyImg, width / 2, height / 2, bW, bH);
-    }
-}
-
-function drawGlitchEffect() {
-    let offsetX = random(-50, 50);
-    let offsetY = random(-10, 10);
-    copy(0, 0, width, height, offsetX, offsetY, width, height);
-
-    noStroke();
-    fill(random(360), 100, 100, 50);
-    rect(random(width), random(height), width, random(50));
-}
-
-function triggerGlitchAndDie() {
-    glitchTimer = 30;
-    isDead = true;
-}
-
-function mousePressed() {
-    if (showBabyMode && !isDead) {
-        if (!babyGone) {
-            babyScale += 0.08;
-            if (babyScale > 1.2) babyScale = 1.2;
-        } else {
-            press += 20;
+            if (currentBP > 200) {
+                setSceneState(STATE.POST_BP);
+            }
         }
     }
 }
 
-function deviceShaken() {
-    if (showBabyMode && babyGone && !isDead) {
-        press += 15;
+function handleEmbryoInteraction() {
+    let inputY = mouseY;
+
+    let constrainedInputY = constrain(inputY, height * 0.3, height * 0.8);
+
+    let targetNeedleY = constrainedInputY;
+
+    needleY = lerp(needleY, targetNeedleY, 0.1);
+}
+
+function updateBabyLogic() {
+    babySceneTime++;
+
+    let dynamicShrinkRate;
+    if (babySceneTime < 300) {
+        dynamicShrinkRate = 0.005;
+        babyPullForce = 0.005
+    } else if (babySceneTime > 1500) {
+        dynamicShrinkRate = 0.08;
+    } else {
+        dynamicShrinkRate = map(babySceneTime, 300, 1500, 0.005, 0.03);
+        babyPullForce = map(babySceneTime, 300, 1500, 0.005, 0.02);
+    }
+
+    if (mouseIsPressed) {
+        babyScale += babyPullForce;
+        press += 5;
+    } else {
+        babyScale -= dynamicShrinkRate;
+        press -= 2;
+    }
+
+    press = constrain(press, 0, 500);
+
+    if (babyScale > 0.7) babyScale = 0.7;
+
+    if (babyScale <= 0) {
+        babyScale = 0;
+        setSceneState(STATE.GONE);
     }
 }
 
-function touchStarted() {
-    if (showInjection || showMeasure || showBabyMode) return false;
-    return true;
+//打針
+function setInjectionMode(isActive) {
+    showInjection = isActive;
+    if (isActive) {
+        noCursor();
+        params.trail = 100;
+    } else {
+        cursor();
+        setSceneState(STATE.POST_INJECT);
+    }
 }
+
+//量血壓
+function setMeasuringMode(isActive) {
+    showMeasure = isActive;
+    if (isActive) {
+        noCursor();
+        params.trail = 100;
+        currentBP = 0;
+    } else {
+        cursor();
+    }
+}
+
+//注射胚胎
+function setEmbryoMode(isActive) {
+    showEmbryo = isActive;
+    if (isActive) {
+        setSceneState(STATE.EMBRYO);
+        needleY = height;
+        noCursor();
+        params.trail = 100;
+    } else {
+        cursor();
+        setSceneState(STATE.POST_EMBRYO);
+    }
+}
+
+//找嬰兒
+function setBabyMode(isActive) {
+    showBabyMode = isActive;
+    if (isActive) {
+        setSceneState(STATE.BABY);
+        babyScale = 0.7;
+        babySceneTime = 0;
+        press = 0;
+        cursor();
+    }
+}
+//結尾
+function setEndingMood(winner) {
+    setSceneState(STATE.ENDING);
+
+    let endBg = [210, 80, 20, 100];
+    let endLine = [200, 60, 90, 80];
+    let endBlur = false;
+
+    if (winner === 'support') {
+        params.amp = 50;
+        params.speed = 0.005;
+        params.trail = 20;
+        params.bgColor = [200, 70, 40, 100];
+        params.lineColor = [190, 30, 100, 80];
+        endBlur = false;
+    }
+    else if (winner === 'oppose') {
+        params.amp = 300;
+        params.speed = 0.1;
+        params.trail = 80;
+        params.bgColor = [280, 80, 20, 100];
+        params.lineColor = [340, 80, 90, 80];
+        endBlur = false;
+    }
+    else if (winner === 'pause') {
+        params.amp = 30;
+        params.speed = 0.001;
+        params.trail = 10;
+        params.bgColor = [0, 0, 30, 100];
+        params.lineColor = [0, 0, 60, 50];
+        endBlur = true;
+    }
+
+    const canvas = document.querySelector('canvas');
+    if (endBlur) {
+        canvas.style.filter = 'blur(5px)';
+        canvas.style.transition = 'filter 3s ease';
+    } else {
+        canvas.style.filter = 'blur(0px)';
+    }
+}
+
+//漂浮簽名
+function triggerFloatingSignatures(fileList) {
+    floatingSignatures = [];
+
+    let startX = 50;
+    let startY = height + 100;
+    let currentX = startX;
+    let currentY = startY;
+    let rowHeight = 0;
+    let margin = 20;
+
+    // fileList.sort(() => Math.random() - 0.5);
+
+    fileList.forEach((filename, index) => {
+        loadImage(`./images/signature/${filename}`, (img) => {
+            let w = img.width * 0.25;
+            let h = img.height * 0.25;
+
+            if (currentX + w > width - 50) {
+                currentX = startX;
+            }
+
+            floatingSignatures.push({
+                img: img,
+                x: currentX,
+                y: height + Math.random() * 500,
+                w: w,
+                h: h,
+                targetY: 0,
+                speed: random(1, 3)
+            });
+
+            currentX += w + margin;
+            if (h > rowHeight) rowHeight = h;
+        });
+    });
+}
+
+let layoutCalculated = false;
+
+function drawFloatingSignatures() {
+    if (floatingSignatures.length === 0) return;
+
+    if (!layoutCalculated && floatingSignatures.length > 0) {
+        let x = 50;
+        let y = height * 0.2;
+        let maxHeightInRow = 0;
+        let margin = 20;
+
+        floatingSignatures.forEach(sig => {
+            if (x + sig.w > width - 50) {
+                x = 50;
+                y += maxHeightInRow + margin;
+                maxHeightInRow = 0;
+            }
+            sig.targetX = x;
+            sig.targetY = y;
+            sig.x = x;
+
+            if (sig.h > maxHeightInRow) maxHeightInRow = sig.h;
+            x += sig.w + margin;
+        });
+        layoutCalculated = true;
+    }
+
+    floatingSignatures.forEach(sig => {
+        sig.y = lerp(sig.y, sig.targetY, 0.05);
+
+        noTint();
+        imageMode(CORNER);
+        image(sig.img, sig.x, sig.y, sig.w, sig.h);
+    });
+    imageMode(CENTER);
+}
+
+
+function setSceneState(newState) {
+    currentSceneState = newState;
+    params.trail = 100;
+}
+
 
 function windowResized() {
     resizeCanvas(window.innerWidth, window.innerHeight);
     calculateImageBounds();
 }
 
+
 function calculateImageBounds() {
     imgX = width / 2;
     imgY = height / 2;
     imgH = height * 0.8;
-    if (bodyImg) imgW = (bodyImg.width / bodyImg.height) * imgH;
-    else imgW = 300;
+
+    if (bodyImg && bodyImg.width > 0) {
+        imgW = (bodyImg.width / bodyImg.height) * imgH;
+    } else {
+        imgW = 300;
+    }
+
+    if (uterusImg && uterusImg.width > 0) {
+        uterusH = height * 0.3;
+        let ratio = uterusImg.width / uterusImg.height;
+        uterusW = uterusH * ratio;
+    } else {
+        uterusW = 300;
+        uterusH = 300;
+    }
 }
 
 function checkMouseOverBody() {
-    let leftBound = imgX - imgW / 2;
-    let rightBound = imgX + imgW / 2;
-    let topBound = imgY - imgH / 2;
-    let bottomBound = imgY + imgH / 2;
-    return (mouseX > leftBound && mouseX < rightBound && mouseY > topBound && mouseY < bottomBound);
-}
-
-function checkInjectionState() {
-    if (!showInjection) return false;
-    return checkMouseOverBody() && mouseIsPressed;
-}
-
-function checkMeasureState() {
-    if (!showMeasure) return false;
-    return checkMouseOverBody() && mouseIsPressed;
+    let left = imgX - imgW / 2;
+    let right = imgX + imgW / 2;
+    let top = imgY - imgH / 2;
+    let bottom = imgY + imgH / 2;
+    return (mouseX > left && mouseX < right && mouseY > top && mouseY < bottom);
 }
 
 function updateSignature(dataUrl) {
-    loadImage(dataUrl, (img) => userSignatureImg = img);
+    loadImage(dataUrl, (img) => {
+        userSignatureImg = img;
+    });
 }
 
+function loadUserSignature(path) {
+    userSigPath = path;
+    loadImage(path, (img) => {
+        userSignatureImg = img;
+    });
+}
 
-function setInjectionMode(isActive) {
-    showInjection = isActive;
-    if (isActive) {
-        showMeasure = false;
-        showBabyMode = false;
-        noCursor();
-    } else {
-        if (!showMeasure && !showBabyMode) cursor();
+function initSignatureCanvas() {
+    const container = document.getElementById('signature-display');
+
+    if (container && !signatureCanvasInstance) {
+        signatureCanvasInstance = createCanvas(container.offsetWidth, container.offsetHeight);
+        signatureCanvasInstance.parent('signature-display');
+        signatureCanvasInstance.style('z-index', 1);
     }
 }
+/*
+function drawSignature() {
+    if (!signatureCanvasInstance) return;
 
+    signatureCanvasInstance.noStroke();
+    //signatureCanvasInstance.background(0, 0, 0, 0.3); 
 
-function setMeasuringMode(isActive) {
-    showMeasure = isActive;
-    if (isActive) {
-        showInjection = false;
-        showBabyMode = false;
-        noCursor();
-    } else {
-        if (!showInjection && !showBabyMode) cursor();
+    if (userSignatureImg) {
+        let cw = signatureCanvasInstance.width;
+        let ch = signatureCanvasInstance.height;
+
+        let sigW = cw * 0.9;
+        let sigH = ch * 0.9;
+
+        signatureCanvasInstance.imageMode(CENTER);
+        signatureCanvasInstance.image(userSignatureImg, cw / 2, ch / 2, sigW, sigH);
     }
-}
-
-function setBabyMode(isActive) {
-    showBabyMode = isActive;
-    if (isActive) {
-        showInjection = false;
-        showMeasure = false;
-
-        babyScale = 1.0;
-        babyGone = false;
-        isDead = false;
-        press = 0;
-        cursor();
-    } else {
-        if (!showInjection && !showMeasure) cursor();
-    }
-}
+} */

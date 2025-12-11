@@ -2,7 +2,10 @@
 
 <head>
   <title>Final Project</title>
+  <meta charset="UTF-8">
   <link rel="stylesheet" href="stylesheets/style.css">
+  <link rel="icon" href="/images/needle.png" type="image/png">
+
 </head>
 
 <body>
@@ -19,7 +22,7 @@
   <div class="menu">
     <h1 class="title"><span>代</span><span>理</span><span>孕</span><span>母</span><span>之</span><span>路</span></h1>
     <h3 class="sub-title">
-      <span>F</span><span>I</span><span>N</span><span>A</span><span>L</span><span>&emsp;P</span><span>R</span><span>O</span><span>J</span><span>E</span><span>C</span><span>T</span>
+      <span>R</span><span>O</span><span>A</span><span>D&emsp;</span><span>T</span><span>O&emsp;</span><span>S</span><span>U</span><span>R</span><span>R</span><span>O</span><span>G</span><span>A</span><span>C</span><span>Y</span>
     </h3>
     <button class="start-button"> START </button>
 
@@ -33,7 +36,7 @@
     </h1>
     <button class="continue-button" data-action="whatjob">什麼工作？</button>
     <h1 class="TypeWriter" data-id="2">
-      <span>...借出你的子宮。</span>
+      <span>⋯借出你的子宮。</span>
     </h1>
     <div class="choice-block">
       <button class="continue-button" data-action="agree">我願意</button>
@@ -55,23 +58,25 @@
 
     <button class="continue-button" data-action="ok">好的</button>
 
-    <div class="contact">
+    <div class="contact" data-id="1">
       <h1>代孕條約</h1>
-      <p>1. 基本報酬自胚胎植入且胎兒心跳確認後開始計算。<br>;2. 孕母同意遵照醫療團隊指示，不得自行終止妊娠。<br>3. 妊娠期間，孕母不得進行高強度活動與搭機旅行，飲食也必須受到嚴格管控。<br></p>
+      <p>1. 基本報酬自胚胎植入且胎兒心跳確認後開始計算。<br>2. 孕母同意遵照醫療團隊指示，不得自行終止妊娠。<br>3. 妊娠期間，不得進行高強度活動與搭機旅行，飲食也必須受到嚴格管控。<br></p>
       <p style="color:red">註：若妊娠失敗，報酬即停止，且孕母必須承受一切法律責任。</p>
       <p> 簽名處：</p>
+
+
+      <div id="signature-container" class="signature-container">
+        <div class="canvas-wrapper">
+          <canvas id="drawing-board" style="width: 70vw; height: 20vh"></canvas>
+        </div>
+
+        <div class="sig-buttons">
+          <button id="clear-btn" data-action="clear" class="continue-button">重寫</button>
+          <button id="confirm-sign-btn" data-action="confirm" class="continue-button">確定</button>
+        </div>
+      </div>
     </div>
 
-    <div id="signature-container" class="signature-container">
-      <div class="canvas-wrapper">
-        <canvas id="drawing-board" width="800" height="300"></canvas>
-      </div>
-
-      <div class="sig-buttons">
-        <button id="clear-btn" data-action="clear" class="continue-button">重寫</button>
-        <button id="confirm-sign-btn" data-action="confirm" class="continue-button">確定</button>
-      </div>
-    </div>
 
 
 
@@ -87,10 +92,13 @@
 
 
     <h1 class="TypeWriter" data-id="22">
-      <span>醫生說，為提升胚胎著床的成功率</span>
+      <span>醫生說，為提升胚胎著床的成功率。</span>
       <span>你必須每天在固定時間注射激素。</span>
-      <span>請點擊您的身體進行注射。</span>
     </h1>
+
+    <div id="injection-hint" class="scroll-hint">
+      <p>請點擊您的身體進行注射。</p>
+    </div>
 
 
     <h1 class="TypeWriter" data-id="23">
@@ -107,11 +115,16 @@
 
 
     <h1 class="TypeWriter" data-id="25">
-      <span>今天產檢時，你的血壓數字不正常</span>
+      <span>今天產檢時，你的血壓數字不正常。</span>
       <span>醫生皺起眉頭，要求你立刻進行密集檢查。</span>
     </h1>
 
     <button class="continue-button" data-action="two-three-btn">測量血壓</button>
+
+
+    <div id="blood-pressure-hint" class="scroll-hint">
+      <p>請長按您的身體測量血壓。</p>
+    </div>
 
     <h1 class="TypeWriter" data-id="26">
       <span> 「我的血壓太高了，我是不是做錯了什麼？」</span>
@@ -128,17 +141,22 @@
 
 
     <h1 class="TypeWriter" data-id="28">
-      <span> 這次的植入又失敗了。</span>
-      <span>醫生建議立刻進行下一次植入手術</span>
-      <span>你若拒絕，合約將立即終止。<span>
+      <span>這次的植入又失敗了。</span>
+      <span>醫生建議立刻進行下一次植入手術。</span>
+      <span>你若拒絕，合約將立即終止。</span>
     </h1>
 
     <button class="continue-button" data-action="two-five-btn">進行手術</button>
 
+    <div id="embryo-hint" class="scroll-hint">
+      <div class="arrow"></div>
+      <p>請向上滑動螢幕以注入胚胎</p>
+    </div>
+
     <h1 class="TypeWriter" data-id="29">
-      <span> 「再來一次……我已經不知道是第幾次了。」</span>
+      <span>「再來一次……我已經不知道是第幾次了。」</span>
       <span>「 但若不成功，我什麼都拿不到。」</span>
-      <span> 「我真的別無選擇。」<span>
+      <span>「我真的別無選擇。」<span>
     </h1>
 
 
@@ -167,6 +185,33 @@
       <span>孩子真正的父母正準備帶走他。</span>
     </h1>
     <button class="continue-button" data-action="three-two-btn">憑什麼？</button>
+
+    <div id="baby-hint" class="scroll-hint">
+      <p>孩子即將離去，請點擊螢幕挽留他。</p>
+    </div>
+
+    <h1 class="TypeWriter" data-id="34">
+      <span>「他被抱走的瞬間，我的身體像被掏空了一樣。」</span>
+      <span>「我知道他不屬於我，但我的身體記得他來過。」</span>
+    </h1>
+
+    <h1 class="TypeWriter" data-id="35">
+      <span>「拜託別走⋯」</span>
+    </h1>
+
+    <div class="contact" data-id="3">
+      <h1>代孕條約</h1>
+      <p>1. 基本報酬自胚胎植入且胎兒心跳確認後開始計算。<br>2. 孕母同意遵照醫療團隊指示，不得自行終止妊娠。<br>3. 妊娠期間，孕母不得進行高強度活動與搭機旅行，飲食也必須受到嚴格管控。<br></p>
+      <p style="color:red">註：若妊娠失敗，報酬即停止，且孕母必須承受一切法律責任。<br></p>
+      <p> 簽名處：</p>
+
+      <div class="canvas-wrapper">
+        <img id="signature-preview" src="" alt="您的簽名"
+          style="width: 100%; height: 100%; object-fit: contain; display: none;">
+      </div>
+    </div>
+
+    <button class="continue-button" data-action="three-three-btn">完成合約</button>
 
     <button class="change-button" data-next="FourthScene" data-action="TriggerFourthScene"> 下一幕 </button>
 
