@@ -1,21 +1,32 @@
 const bgm = new Audio('./sounds/bgm2.mp3');
 const sfxClick = new Audio('./sounds/click2.mp3')
 const sfxType = new Audio('./sounds/Typing.mp3')
+const sfxBaby = new Audio('./sounds/baby/mp3')
 bgm.loop = true;
 bgm.volume = 0;
 sfxClick.volume = 1;
 sfxType.volume = 0.3;
 sfxType.loop = true;
+sfxBaby.volume = 0.2;
+sfxBaby.loop = false;
 
 let hasStartedMusic = false;
+let isStarting = false;
 
 function fadeInBgm(targetVolume = 0.5, duration = 2000) {
-    if (bgm.volume >= targetVolume) return;
     bgm.play().then(() => {
+        if (bgm.volume >= targetVolume && bgm.volume !== 1) {
+            return;
+        }
+
         const interval = 50;
         const step = targetVolume / (duration / interval);
-
         const fadeTimer = setInterval(() => {
+            if (bgm.volume === 1 && targetVolume < 1) {
+                clearInterval(fadeTimer);
+                return;
+            }
+
             if (bgm.volume + step < targetVolume) {
                 bgm.volume += step;
             } else {
@@ -83,6 +94,15 @@ function fadeOutBgm(duration = 2000) {
     }, interval);
 }
 
+function handleTouchOrClick(e) {
+    if (e.currentTarget.getAttribute('data-handled')) return;
+    e.currentTarget.setAttribute('data-handled', 'true');
+    
+    if (e.type === 'touchstart') {
+        e.preventDefault();
+    }
+}
+
 
 
 const startBtn = document.querySelector('.start-button');
@@ -133,8 +153,8 @@ window.addEventListener('load', () => {
 
 //點擊螢幕
 document.body.addEventListener('click', () => {
-
-    sfxClick.currentTime = 0;
+    sfxClick.pause();
+    sfxClick.currentTime = 100;
     sfxClick.play();
 
     if (!hasStartedMusic) {
@@ -173,7 +193,8 @@ document.body.addEventListener('click', () => {
 
 //點 START（後端要抓「按這個按鈕」的事件）
 startBtn.addEventListener('click', function () {
-    sfxClick.currentTime = 0;
+    sfxClick.pause();
+    sfxClick.currentTime = 100;
     sfxClick.play();
     startBtn.style.pointerEvents = 'none';
     setTimeout(() => {
@@ -221,10 +242,13 @@ startBtn.addEventListener('click', function () {
 
 continueBtn.forEach(btn => {
     btn.addEventListener('click', (e) => {
-        sfxClick.currentTime = 0;
-        sfxClick.play();
-        btn.style.pointerEvents = 'none';
         const action = e.target.dataset.action;
+        sfxClick.pause();
+        sfxClick.currentTime = 100;
+        sfxClick.play();
+        if (e.target.dataset.action != 'clear') {
+            btn.style.pointerEvents = 'none';
+        }
         //什麼工作？
         if (action === 'whatjob') {
             const TextOne = document.querySelector('.TypeWriter[data-id="1"]');
@@ -718,6 +742,12 @@ continueBtn.forEach(btn => {
                 TextTwoNineOne.style.display = 'none';
                 okBtnTwoSix.style.display = 'none';
 
+                sfxBaby.pause();
+                sfxBaby.currentTime = 0;
+                sfxBaby.play();
+            }, 2000)
+
+            setTimeout(() => {
                 TextThreeOne.style.display = 'flex';
                 void TextThreeOne.offsetWidth;
                 TextThreeOne.style.opacity = 1;
@@ -725,12 +755,13 @@ continueBtn.forEach(btn => {
                 playTypingSound(3000);
 
                 okBtnThreeOne.style.display = 'flex';
-            }, 2000)
+            }, 7000)
+
             setTimeout(() => {
 
                 okBtnThreeOne.style.pointerEvents = 'auto';
                 okBtnThreeOne.style.opacity = 1;
-            }, 7000)
+            }, 11000)
         }
 
         //第三幕
@@ -973,64 +1004,64 @@ continueBtn.forEach(btn => {
 
         //再玩一次
         else if (action === 'restart') {
-                const endOptions = document.querySelector('.end-options');
-                const TextFourFour = document.querySelector('.TypeWriter[data-id="44"]');
+            const endOptions = document.querySelector('.end-options');
+            const TextFourFour = document.querySelector('.TypeWriter[data-id="44"]');
 
-                if (endOptions) endOptions.style.opacity = 0;
-                if (TextFourFour) TextFourFour.style.opacity = 0;
+            if (endOptions) endOptions.style.opacity = 0;
+            if (TextFourFour) TextFourFour.style.opacity = 0;
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+        //看結尾
+        else if (action === 'pure-background') {
+            const FourthScene = document.querySelector('.FourthScene');
+
+            if (FourthScene) {
+                FourthScene.style.transition = 'opacity 2s ease';
+                FourthScene.style.opacity = 0;
 
                 setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
+                    FourthScene.style.display = 'none';
+                    FourthScene.classList.remove('active');
+                }, 2000);
             }
-            //看結尾
-            else if (action === 'pure-background') {
-                const FourthScene = document.querySelector('.FourthScene');
 
-                if (FourthScene) {
-                    FourthScene.style.transition = 'opacity 2s ease';
-                    FourthScene.style.opacity = 0;
+            fetch('/api/vote-stats')
+                .then(res => res.json())
+                .then(stats => {
+                    let winner = 'support';
+                    let maxVotes = stats.support;
 
-                    setTimeout(() => {
-                        FourthScene.style.display = 'none';
-                        FourthScene.classList.remove('active');
-                    }, 2000);
-                }
+                    if (stats.oppose > maxVotes) {
+                        winner = 'oppose';
+                        maxVotes = stats.oppose;
+                    }
+                    if (stats.pause > maxVotes) {
+                        winner = 'pause';
+                    }
 
-                fetch('/api/vote-stats')
+                    console.log("Winner is:", winner);
+
+                    if (typeof setEndingMood === 'function') {
+                        setEndingMood(winner);
+                    }
+                });
+
+            setTimeout(() => {
+                fetch('/api/all-signatures')
                     .then(res => res.json())
-                    .then(stats => {
-                        let winner = 'support';
-                        let maxVotes = stats.support;
-
-                        if (stats.oppose > maxVotes) {
-                            winner = 'oppose';
-                            maxVotes = stats.oppose;
-                        }
-                        if (stats.pause > maxVotes) {
-                            winner = 'pause';
-                        }
-
-                        console.log("Winner is:", winner);
-
-                        if (typeof setEndingMood === 'function') {
-                            setEndingMood(winner);
+                    .then(fileList => {
+                        console.log("載入簽名數量:", fileList.length);
+                        if (typeof triggerFloatingSignatures === 'function') {
+                            triggerFloatingSignatures(fileList);
                         }
                     });
+            }, 3000);
+        }
 
-                setTimeout(() => {
-                    fetch('/api/all-signatures')
-                        .then(res => res.json())
-                        .then(fileList => {
-                            console.log("載入簽名數量:", fileList.length);
-                            if (typeof triggerFloatingSignatures === 'function') {
-                                triggerFloatingSignatures(fileList);
-                            }
-                        });
-                }, 3000);
-            }
-
-        });
+    });
 });
 
 
@@ -1081,7 +1112,8 @@ function goToScene(nextSceneClassName) {
 
 allChangeBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
-        sfxClick.currentTime = 0;
+        sfxClick.pause();
+        sfxClick.currentTime = 100;
         sfxClick.play();
         const action = e.target.dataset.action;
         const nextSceneClassName = e.currentTarget.dataset.next;
