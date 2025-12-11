@@ -107,8 +107,8 @@ window.addEventListener('load', () => {
     choiceBlock.forEach(block => block.style.display = 'none');
     choiceBlock.forEach(block => block.style.opacity = 0);
     allChangeBtns.forEach(btn => btn.style.pointerEvents = 'auto');
-    //allChangeBtns.forEach(btn => btn.style.display = 'none');
-    //allChangeBtns.forEach(btn => btn.style.opacity = 0);
+    allChangeBtns.forEach(btn => btn.style.display = 'none');
+    allChangeBtns.forEach(btn => btn.style.opacity = 0);
 
     menu.style.display = 'none';
 
