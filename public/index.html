@@ -4,11 +4,26 @@
   <title>Final Project</title>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="stylesheets/style.css">
-  <link rel="icon" href="/images/needle.png" type="image/png">
+  <link rel="icon" href="/images/baby.png" type="image/png">
 
 </head>
 
 <body>
+
+  <script>
+    window.activeTimeouts = [];
+    const _originalSetTimeout = window.setTimeout;
+    window.setTimeout = function (func, delay) {
+      const id = _originalSetTimeout(func, delay);
+      window.activeTimeouts.push(id);
+      return id;
+    };
+    function clearAllTimeouts() {
+      window.activeTimeouts.forEach(id => clearTimeout(id));
+      window.activeTimeouts = [];
+    }
+  </script>
+
   <main id="ui-layer">
     <div id="button-container">
     </div>
@@ -102,7 +117,7 @@
 
 
     <h1 class="TypeWriter" data-id="23">
-      <span>「腹脹、噁心、頭痛……醫生說這是正常反應」</span>
+      <span>「腹脹、噁心、頭痛⋯⋯醫生說這是正常反應」</span>
       <span>「我真的得為了賺錢這樣折磨我的身體嗎？」</span>
     </h1>
 
@@ -256,9 +271,160 @@
       <button class="continue-button" data-action="pure-background">點我看動畫</button>
     </div>
 
+    <div class="StatsBoard" id="vote-stats-display">
+      <h1 class="stats-title">即時投票統計</h1>
 
+      <div class="stats-row">
+        <span>支持票數：</span>
+        <span id="vote-support" class="vote-number">0</span>
+      </div>
+
+      <div class="stats-row">
+        <span>反對票數：</span>
+        <span id="vote-number-oppose" class="vote-number">0</span>
+      </div>
+
+      <div class="stats-row">
+        <span>暫停票數：</span>
+        <span id="vote-pause" class="vote-number">0</span>
+      </div>
+
+      <hr style="width: 50%; border: 1px solid white; margin: 20px 0;">
+
+      <div class="stats-row total">
+        <span>總投票數：</span>
+        <span id="vote-total" class="vote-number">0</span>
+      </div>
+    </div>
+  </div>
+<!-- 開發工具
+  <div id="dev-panel"
+    style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 10px; border: 1px solid #555; display: flex; flex-direction: column; gap: 8px; font-family: sans-serif;">
+    <button onclick="skipToScene(2)"
+      style="padding: 5px 10px; cursor: pointer; background: #333; color: white; border: 1px solid #777; border-radius: 4px;">第
+      2 幕：醫療過程</button>
+    <button onclick="skipToScene(3)"
+      style="padding: 5px 10px; cursor: pointer; background: #333; color: white; border: 1px solid #777; border-radius: 4px;">第
+      3 幕：孩子出生</button>
+    <button onclick="skipToScene(4)"
+      style="padding: 5px 10px; cursor: pointer; background: #333; color: white; border: 1px solid #777; border-radius: 4px;">第
+      4 幕：對話開始</button>
+    <button onclick="skipToScene(4.5)"
+      style="padding: 5px 10px; cursor: pointer; background: #d9534f; color: white; border: 1px solid #d43f3a; border-radius: 4px; font-weight: bold;">直接進入投票</button>
+    <button onclick="document.getElementById('dev-panel').style.display='none'"
+      style="margin-top:5px; font-size:10px; background:none; border:none; color:#aaa; cursor:pointer;">[關閉面板]</button>
   </div>
 
+  <script>
+
+    function hideAllElements(selector) {
+      document.querySelectorAll(selector).forEach(el => {
+        el.style.display = 'none';
+        el.style.opacity = 0;
+        el.style.pointerEvents = 'none';
+      });
+    }
+
+    function skipToScene(sceneIndex) {
+      if (window.activeTimeouts) {
+        window.activeTimeouts.forEach(id => clearTimeout(id));
+        window.activeTimeouts = [];
+      }
+
+      if (typeof sfxType !== 'undefined') { sfxType.pause(); sfxType.currentTime = 0; }
+      if (typeof sfxBaby !== 'undefined') { sfxBaby.pause(); sfxBaby.currentTime = 0; }
+
+      document.querySelector('.menu').style.display = 'none';
+      ['FirstScene', 'SecondScene', 'ThirdScene', 'FourthScene'].forEach(cls => {
+        const el = document.querySelector('.' + cls);
+        if (el) {
+          el.classList.remove('active');
+          el.style.display = 'none';
+
+          hideAllElements('.' + cls + ' .TypeWriter');
+          hideAllElements('.' + cls + ' .continue-button');
+          hideAllElements('.' + cls + ' .normal');
+          hideAllElements('.scroll-hint'); 
+
+          if (cls === 'FirstScene') hideAllElements('.contact[data-id="1"]');
+        }
+      });
+
+      if (sceneIndex === 2) {
+        const scene = document.querySelector('.SecondScene');
+        scene.style.display = 'flex';
+        setTimeout(() => scene.classList.add('active'), 10);
+        if (typeof setSceneState !== 'undefined') setSceneState(1); // POST_INJECT
+
+        resetElement('.TypeWriter[data-id="21"]');
+        resetElement('.continue-button[data-action="two-one-btn"]');
+      }
+      else if (sceneIndex === 3) {
+        const scene = document.querySelector('.ThirdScene');
+        scene.style.display = 'flex';
+        setTimeout(() => scene.classList.add('active'), 10);
+        if (typeof setSceneState !== 'undefined') setSceneState(5); // BABY
+
+        resetElement('.TypeWriter[data-id="31"]');
+        resetElement('.continue-button[data-action="three-one-btn"]');
+        if (typeof sfxBaby !== 'undefined') sfxBaby.play().catch(e => { });
+      }
+      else if (sceneIndex === 4) {
+        const scene = document.querySelector('.FourthScene');
+        scene.style.display = 'flex';
+        setTimeout(() => scene.classList.add('active'), 10);
+        if (typeof setSceneState !== 'undefined') setSceneState(7); // ENDING
+
+        document.querySelector('.final-decision').style.display = 'none';
+        resetElement('.TypeWriter[data-id="41"]');
+        resetElement('.continue-button[data-action="four-one-btn"]');
+      }
+      else if (sceneIndex === 4.5) {
+        const scene = document.querySelector('.FourthScene');
+        scene.style.display = 'flex';
+        setTimeout(() => scene.classList.add('active'), 10);
+        if (typeof setSceneState !== 'undefined') setSceneState(7);
+
+        document.querySelectorAll('.FourthScene .TypeWriter').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.FourthScene .continue-button').forEach(el => el.style.display = 'none');
+
+        const qText = document.querySelector('.TypeWriter[data-id="43"]');
+        if (qText) {
+          qText.style.display = 'flex';
+          qText.style.opacity = 1;
+        }
+
+        const finalDec = document.querySelector('.final-decision');
+        if (finalDec) {
+          finalDec.style.display = 'flex';
+          finalDec.style.opacity = 1;
+
+          const btns = finalDec.querySelectorAll('button');
+          btns.forEach(btn => {
+            btn.style.display = 'flex';
+            btn.style.opacity = 1;
+            btn.style.pointerEvents = 'auto';
+            btn.disabled = false;
+          });
+        }
+      }
+
+      if (typeof bgm !== 'undefined' && bgm.paused) {
+        bgm.volume = 0.5;
+        bgm.play().catch(e => { });
+      }
+    }
+
+    function resetElement(selector) {
+      const el = document.querySelector(selector);
+      if (el) {
+        el.style.display = 'flex';
+        el.style.opacity = 1;
+        el.style.pointerEvents = 'auto';
+        if (el.classList.contains('TypeWriter')) el.classList.add('start-typing');
+      }
+    }
+  </script>-->
 
   <script src="script.js"></script>
 </body>

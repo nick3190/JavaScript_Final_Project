@@ -60,7 +60,7 @@ function preload() {
 
 function setup() {
     //抓後端
-    fetch('/api/config')
+    fetch(`${BACKEND_URL}/api/config`)
         .then(response => response.json())
         .then(config => {
             Object.assign(params, config);
@@ -223,7 +223,7 @@ function drawSceneContent() {
             let redAmount = map(depth, 0.5, 1.0, 0, 1, true);
             let finalColor = lerpColor(baseColor, targetColor, redAmount);
             tint(finalColor);
-            let shake = map(depth, 0, 1, 0, 5, true); 
+            let shake = map(depth, 0, 1, 0, 5, true);
             image(uterusImg, width / 2 + random(-shake, shake), height / 2, uterusW, uterusH);
             noTint();
         }
@@ -332,7 +332,8 @@ function updateBabyLogic() {
         dynamicShrinkRate = 0.005;
         babyPullForce = 0.005
     } else if (babySceneTime > 1500) {
-        dynamicShrinkRate = 0.08;
+        dynamicShrinkRate = 1;
+        babyPullForce = 0;
     } else {
         dynamicShrinkRate = map(babySceneTime, 300, 1500, 0.005, 0.03);
         babyPullForce = map(babySceneTime, 300, 1500, 0.005, 0.02);
@@ -449,76 +450,81 @@ function setEndingMood(winner) {
 
 //漂浮簽名
 function triggerFloatingSignatures(fileList) {
+
+    if (!fileList && !userSignatureImg) return;
     floatingSignatures = [];
 
-    let startX = 50;
-    let startY = height + 100;
-    let currentX = startX;
-    let currentY = startY;
-    let rowHeight = 0;
-    let margin = 20;
+    let layoutX = 50;
+    let layoutY = height * 0.15;
+    let maxHeightInRow = 0;
+    let margin = 30;
 
-    // fileList.sort(() => Math.random() - 0.5);
+    function addFloatingSignature(img) {
+        let w = img.width * 0.4;
+        let h = img.height * 0.4;
 
-    fileList.forEach((filename, index) => {
-        loadImage(`./images/signature/${filename}`, (img) => {
-            let w = img.width * 0.25;
-            let h = img.height * 0.25;
+        if (layoutX + w > width - 50) {
+            layoutX = 50;
+            layoutY += maxHeightInRow + margin;
+            maxHeightInRow = 0;
+        }
 
-            if (currentX + w > width - 50) {
-                currentX = startX;
-            }
+        let targetX = layoutX;
+        let targetY = layoutY;
 
-            floatingSignatures.push({
-                img: img,
-                x: currentX,
-                y: height + Math.random() * 500,
-                w: w,
-                h: h,
-                targetY: 0,
-                speed: random(1, 3)
-            });
+        if (h > maxHeightInRow) maxHeightInRow = h;
+        layoutX += w + margin;
 
-            currentX += w + margin;
-            if (h > rowHeight) rowHeight = h;
+        floatingSignatures.push({
+            img: img,
+            x: targetX,
+            y: height + random(100, 300),
+            w: w,
+            h: h,
+            targetY: targetY,
+            floatOffset: random(0, 100)
         });
-    });
+    }
+
+    if (Array.isArray(fileList) && fileList.length > 0) {
+        console.log(`準備載入 ${fileList.length} 張簽名...`);
+        fileList.forEach((filename) => {
+            const imageUrl = `${FRONTEND_IMG_PATH}${filename}`;
+
+            loadImage(imageUrl, (img) => {
+                addFloatingSignature(img);
+            }, (err) => {
+                console.warn("略過尚未同步的圖片:", filename);
+            });
+        });
+    }
+    else if (userSignatureImg) {
+        console.log("使用玩家簽名作為備案");
+        for (let i = 0; i < 20; i++) {
+            addFloatingSignature(userSignatureImg);
+        }
+    }
 }
 
-let layoutCalculated = false;
+
 
 function drawFloatingSignatures() {
     if (floatingSignatures.length === 0) return;
 
-    if (!layoutCalculated && floatingSignatures.length > 0) {
-        let x = 50;
-        let y = height * 0.2;
-        let maxHeightInRow = 0;
-        let margin = 20;
-
-        floatingSignatures.forEach(sig => {
-            if (x + sig.w > width - 50) {
-                x = 50;
-                y += maxHeightInRow + margin;
-                maxHeightInRow = 0;
-            }
-            sig.targetX = x;
-            sig.targetY = y;
-            sig.x = x;
-
-            if (sig.h > maxHeightInRow) maxHeightInRow = sig.h;
-            x += sig.w + margin;
-        });
-        layoutCalculated = true;
-    }
-
     floatingSignatures.forEach(sig => {
-        sig.y = lerp(sig.y, sig.targetY, 0.05);
+        let floatY = Math.sin((frameCount * 0.03) + sig.floatOffset) * 15;
+
+        let currentTargetY = sig.targetY + floatY;
+
+        sig.y = lerp(sig.y, currentTargetY, 0.03);
 
         noTint();
         imageMode(CORNER);
-        image(sig.img, sig.x, sig.y, sig.w, sig.h);
+        if (sig.img) {
+            image(sig.img, sig.x, sig.y, sig.w, sig.h);
+        }
     });
+
     imageMode(CENTER);
 }
 
@@ -585,6 +591,28 @@ function initSignatureCanvas() {
         signatureCanvasInstance.parent('signature-display');
         signatureCanvasInstance.style('z-index', 1);
     }
+}
+
+function updateLiveVisuals(data) {
+    if (!data) return;
+
+    let support = parseInt(data.support) || 0;
+    let oppose = parseInt(data.oppose) || 0;
+    let pause = parseInt(data.pause) || 0;
+
+    let winner = 'support';
+    let maxVotes = support;
+
+    if (oppose > maxVotes) {
+        winner = 'oppose';
+        maxVotes = oppose;
+    }
+    if (pause > maxVotes) {
+        winner = 'pause';
+    }
+
+    setEndingMood(winner);
+    console.log(`即時視覺更新: 目前贏家是 ${winner}`);
 }
 /*
 function drawSignature() {

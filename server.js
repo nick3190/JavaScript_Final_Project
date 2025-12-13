@@ -4,6 +4,27 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 
+app.use((req, res, next) => {
+    // 允許所有來源進行跨域存取。如果只允許特定 IP/域名，請替換 '*'
+    res.header('Access-Control-Allow-Origin', '*');
+
+    // 允許必要的標頭，這對於 POST 請求傳遞 JSON 數據是必需的
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+
+    // 允許所有主要 HTTP 方法 (OPTIONS 是預檢請求)
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+
+    // 處理瀏覽器發送的 OPTIONS 預檢請求
+    if (req.method === 'OPTIONS') {
+        // 直接結束 OPTIONS 請求並回傳成功狀態
+        console.log('Received OPTIONS preflight request. Responding with 200 OK.');
+        return res.status(200).send();
+    }
+
+    // 繼續處理下一個中介軟體或路由
+    next();
+});
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
@@ -18,8 +39,8 @@ const visualConfig = {
     layerGap: 60,       // 線條間距
     curveRes: 20,       // 線條解析度
     trail: 5,           // 殘影強度
-    bgColor: [210, 80, 20, 100], 
-    lineColor: [200, 60, 90]     
+    bgColor: [210, 80, 20, 100],
+    lineColor: [200, 60, 90]
 };
 
 
@@ -75,16 +96,16 @@ app.get('/api/vote-stats', (req, res) => {
 
 //接收投票
 app.post('/api/vote', (req, res) => {
-    const { decision } = req.body; 
-    
+    const { decision } = req.body;
+
     let votes = getVotes();
 
     if (votes[decision] !== undefined) {
-        votes[decision]++; 
-        votes.total++;   
-        
+        votes[decision]++;
+        votes.total++;
+
         fs.writeFileSync(VOTE_FILE, JSON.stringify(votes, null, 2));
-        
+
         console.log(`收到新投票: ${decision} (目前總票數: ${votes.total})`);
         res.json({ success: true, stats: votes });
     } else {

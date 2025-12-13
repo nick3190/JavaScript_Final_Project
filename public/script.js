@@ -1,17 +1,87 @@
+const BACKEND_URL = '';
+const FRONTEND_IMG_PATH = '/images/signature/';
+
 const bgm = new Audio('./sounds/bgm2.mp3');
 const sfxClick = new Audio('./sounds/click2.mp3')
 const sfxType = new Audio('./sounds/Typing.mp3')
-const sfxBaby = new Audio('./sounds/baby/mp3')
+const sfxBaby = new Audio('./sounds/baby.mp3')
 bgm.loop = true;
 bgm.volume = 0;
 sfxClick.volume = 1;
-sfxType.volume = 0.3;
+sfxType.volume = 0.4;
 sfxType.loop = true;
-sfxBaby.volume = 0.2;
+sfxBaby.volume = 0.4;
 sfxBaby.loop = false;
 
 let hasStartedMusic = false;
-let isStarting = false;
+let myDecision = 'support';
+let voteRefreshInterval = null;
+
+
+function fetchAndDisplayVotes() {
+    fetch(`${BACKEND_URL}/api/vote-stats`)
+        .then(function (response) {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(function (data) {
+            // 確保 ID 與 HTML 對應
+            const elSupport = document.getElementById('vote-support');
+            const elOppose = document.getElementById('vote-number-oppose');
+            const elPause = document.getElementById('vote-pause');
+            const elTotal = document.getElementById('vote-total');
+
+            if (elSupport) elSupport.textContent = data.support || 0;
+
+            if (document.getElementById('vote-number-oppose')) {
+                document.getElementById('vote-number-oppose').textContent = data.oppose || 0;
+            } else if (document.getElementById('vote-oppose')) {
+                document.getElementById('vote-oppose').textContent = data.oppose || 0;
+            }
+
+            if (elPause) elPause.textContent = data.pause || 0;
+            if (elTotal) elTotal.textContent = data.total || 0;
+
+            console.log('投票統計更新:', data);
+
+            if (typeof updateLiveVisuals === 'function') {
+                updateLiveVisuals(data);
+            }
+        })
+        .catch(function (error) {
+            console.error('更新投票失敗:', error);
+        });
+}
+
+function startLiveVoteRefresh(intervalTime = 5000) {
+    fetchAndDisplayVotes();
+
+    if (voteRefreshInterval) {
+        clearInterval(voteRefreshInterval);
+    }
+    voteRefreshInterval = setInterval(fetchAndDisplayVotes, intervalTime);
+}
+function stopLiveVoteRefresh() {
+    if (voteRefreshInterval) {
+        clearInterval(voteRefreshInterval);
+        voteRefreshInterval = null;
+        console.log("實時投票刷新已停止。");
+    }
+}
+
+function playClickSfx() {
+    try {
+        sfxClick.pause();
+        sfxClick.currentTime = 0;
+        sfxClick.play().catch(error => {
+            if (error.name !== 'AbortError') {
+                console.error("點擊音效播放失敗:", error);
+            }
+        });
+    } catch (e) {
+        console.warn("點擊音效播放時發生同步錯誤:", e);
+    }
+}
 
 function fadeInBgm(targetVolume = 0.5, duration = 2000) {
     bgm.play().then(() => {
@@ -97,7 +167,7 @@ function fadeOutBgm(duration = 2000) {
 function handleTouchOrClick(e) {
     if (e.currentTarget.getAttribute('data-handled')) return;
     e.currentTarget.setAttribute('data-handled', 'true');
-    
+
     if (e.type === 'touchstart') {
         e.preventDefault();
     }
@@ -106,7 +176,7 @@ function handleTouchOrClick(e) {
 
 
 const startBtn = document.querySelector('.start-button');
-const menu = document.querySelector('.Menu');
+const menu = document.querySelector('.menu');
 const firstScene = document.querySelector('.FirstScene');
 const allChangeBtns = document.querySelectorAll('.change-button');
 const typeWriter = document.querySelectorAll('.TypeWriter')
@@ -127,8 +197,8 @@ window.addEventListener('load', () => {
     choiceBlock.forEach(block => block.style.display = 'none');
     choiceBlock.forEach(block => block.style.opacity = 0);
     allChangeBtns.forEach(btn => btn.style.pointerEvents = 'auto');
-    allChangeBtns.forEach(btn => btn.style.display = 'none');
-    allChangeBtns.forEach(btn => btn.style.opacity = 0);
+    //allChangeBtns.forEach(btn => btn.style.display = 'none');
+    //allChangeBtns.forEach(btn => btn.style.opacity = 0);
 
     menu.style.display = 'none';
 
@@ -153,9 +223,7 @@ window.addEventListener('load', () => {
 
 //點擊螢幕
 document.body.addEventListener('click', () => {
-    sfxClick.pause();
-    sfxClick.currentTime = 100;
-    sfxClick.play();
+    playClickSfx();
 
     if (!hasStartedMusic) {
         hasStartedMusic = true;
@@ -191,11 +259,9 @@ document.body.addEventListener('click', () => {
 
 
 
-//點 START（後端要抓「按這個按鈕」的事件）
+//點 START
 startBtn.addEventListener('click', function () {
-    sfxClick.pause();
-    sfxClick.currentTime = 100;
-    sfxClick.play();
+    playClickSfx();
     startBtn.style.pointerEvents = 'none';
     setTimeout(() => {
         menu.style.filter = 'blur(2)';
@@ -242,11 +308,12 @@ startBtn.addEventListener('click', function () {
 
 continueBtn.forEach(btn => {
     btn.addEventListener('click', (e) => {
-        const action = e.target.dataset.action;
-        sfxClick.pause();
-        sfxClick.currentTime = 100;
-        sfxClick.play();
-        if (e.target.dataset.action != 'clear') {
+        playClickSfx();
+
+        const clickedElement = e.target.closest('.continue-button');
+        if (!clickedElement) return;
+        const action = clickedElement.dataset.action;
+        if (action != 'clear') {
             btn.style.pointerEvents = 'none';
         }
         //什麼工作？
@@ -255,7 +322,7 @@ continueBtn.forEach(btn => {
             const TextTwo = document.querySelector('.TypeWriter[data-id="2"]');
             const choiceBlock = document.querySelector('.choice-block');
             const innerBtns = choiceBlock.querySelectorAll('.continue-button');
-            const thisBtn = e.target;
+            const thisBtn = clickedElement;
 
             fadeOutCurrent([TextOne, thisBtn]);
 
@@ -881,7 +948,6 @@ continueBtn.forEach(btn => {
             const okBtn = document.querySelector('.continue-button[data-action="four-one-btn"]')
             const sigPreview = document.getElementById('signature-preview');
             const savedSig = localStorage.getItem('userSignature');
-            sigPreview.src = savedSig;
 
             if (TextContact) TextContact.style.opacity = 0;
             if (okBtnThreeThree) okBtnThreeThree.style.opacity = 0;
@@ -892,7 +958,6 @@ continueBtn.forEach(btn => {
                 TextContact.style.display = 'none';
                 okBtnThreeThree.style.display = 'none';
                 sigPreview.style.display = 'none';
-                savedSig.style.display = 'none';
             }, 2000)
 
             setTimeout(() => {
@@ -1016,19 +1081,19 @@ continueBtn.forEach(btn => {
         }
         //看結尾
         else if (action === 'pure-background') {
-            const FourthScene = document.querySelector('.FourthScene');
+            const textfourfour = document.querySelector('.TypeWriter[data-id="44"]');
+            const endOptions = document.querySelector('.end-options');
 
-            if (FourthScene) {
-                FourthScene.style.transition = 'opacity 2s ease';
-                FourthScene.style.opacity = 0;
+            if (textfourfour) textfourfour.style.opacity = 0;
+            if (endOptions) endOptions.style.opacity = 0;
 
-                setTimeout(() => {
-                    FourthScene.style.display = 'none';
-                    FourthScene.classList.remove('active');
-                }, 2000);
-            }
+            setTimeout(() => {
+                if (textfourfour) textfourfour.style.display = 'none';
+                if (endOptions) endOptions.style.display = 'none';
+            }, 1000);
 
-            fetch('/api/vote-stats')
+
+            fetch(`${BACKEND_URL}/api/vote-stats`)
                 .then(res => res.json())
                 .then(stats => {
                     let winner = 'support';
@@ -1050,7 +1115,7 @@ continueBtn.forEach(btn => {
                 });
 
             setTimeout(() => {
-                fetch('/api/all-signatures')
+                fetch(`${BACKEND_URL}/api/all-signatures`)
                     .then(res => res.json())
                     .then(fileList => {
                         console.log("載入簽名數量:", fileList.length);
@@ -1059,6 +1124,20 @@ continueBtn.forEach(btn => {
                         }
                     });
             }, 3000);
+
+            fetchAndDisplayVotes();
+            startLiveVoteRefresh(5000);
+
+            const statsDisplay = document.getElementById('vote-stats-display');
+            setTimeout(() => {
+                if (statsDisplay) {
+                    statsDisplay.style.display = 'flex';
+                }
+            }, 4000);
+
+            setTimeout(() => {
+                statsDisplay.style.opacity = 1;
+            }, 6000);
         }
 
     });
@@ -1112,10 +1191,8 @@ function goToScene(nextSceneClassName) {
 
 allChangeBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
-        sfxClick.pause();
-        sfxClick.currentTime = 100;
-        sfxClick.play();
-        const action = e.target.dataset.action;
+        playClickSfx();
+        const action = e.currentTarget.dataset.action;
         const nextSceneClassName = e.currentTarget.dataset.next;
         goToScene(nextSceneClassName);
 
@@ -1261,7 +1338,7 @@ if (confirmSignBtn) {
 
 function submitSignature(dataUrl) {
 
-    fetch('/api/save-signature', {
+    fetch(`${BACKEND_URL}/api/save-signature`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -1272,7 +1349,7 @@ function submitSignature(dataUrl) {
         .then(data => {
             console.log("簽名已存檔:", data.filename);
             if (typeof loadUserSignature === 'function') {
-                loadUserSignature(`./images/signature/${data.filename}`);
+                loadUserSignature(`${BACKEND_URL}/images/signature/${data.filename}`);
             }
         })
 
@@ -1282,6 +1359,8 @@ function submitSignature(dataUrl) {
 
 
 function handleVote(decision) {
+    playClickSfx();
+    myDecision = decision;
     document.querySelectorAll('.final-decision button').forEach(btn => {
         btn.disabled = true;
 
@@ -1290,16 +1369,27 @@ function handleVote(decision) {
         }
     });
 
-    fetch('/api/vote', {
+    fetch(`${BACKEND_URL}/api/vote`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision: decision })
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ decision: decision }) // 傳送 'support', 'oppose', 或 'pause'
     })
-        .then(res => res.json())
+        .then(response => {
+            if (!response.ok) {
+                console.error("投票伺服器錯誤:", response.statusText);
+                throw new Error('伺服器回傳錯誤狀態碼: ' + response.status);
+            }
+            return response.json();
+        })
         .then(data => {
-            console.log("投票成功");
-        }
-        )
+            console.log('投票成功！伺服器回應:', data.stats);
+        })
+        .catch((error) => {
+            console.error('上傳投票時發生錯誤:', error);
+        });
+
 
     const FinalDecision = document.querySelector('.final-decision');
     const TextFourThree = document.querySelector('.TypeWriter[data-id="43"]');
@@ -1308,7 +1398,6 @@ function handleVote(decision) {
     const restartBtn = document.querySelector('.continue-button[data-action="restart"]')
     const backgroundBtn = document.querySelector('.continue-button[data-action="pure-background"]')
 
-    //console.log(e.target.dataset.action);
 
     if (FinalDecision) FinalDecision.style.opacity = 0;
     if (TextFourThree) TextFourThree.style.opacity = 0;
@@ -1323,24 +1412,28 @@ function handleVote(decision) {
             TextFourFour.style.opacity = 1;
             TextFourFour.classList.add('start-typing');
             playTypingSound(3000);
+            endOptions.style.display = 'flex';
+            restartBtn.style.display = 'flex';
+            backgroundBtn.style.display = 'flex';
         }
     }, 2000)
 
     setTimeout(() => {
         if (endOptions) {
-            endOptions.style.display = 'flex';
             requestAnimationFrame(() => endOptions.style.opacity = 1);
-            restartBtn.style.pointerEvents = 'auto';
-            restartBtn.style.display = 'flex';
-            backgroundBtn.style.display = 'flex';
-            backgroundBtn.style.pointerEvents = 'auto';
+
+            if (restartBtn) {
+                restartBtn.style.pointerEvents = 'auto';
+                restartBtn.style.display = 'flex';
+                requestAnimationFrame(() => restartBtn.style.opacity = 1);
+            }
+            if (backgroundBtn) {
+                backgroundBtn.style.display = 'flex';
+                backgroundBtn.style.pointerEvents = 'auto';
+                requestAnimationFrame(() => backgroundBtn.style.opacity = 1);
+            }
         }
     }, 6000);
-
-    setTimeout(() => {
-        requestAnimationFrame(() => restartBtn.style.opacity = 1);
-        requestAnimationFrame(() => backgroundBtn.style.opacity = 1);
-    }, 1000);
 }
 
 
