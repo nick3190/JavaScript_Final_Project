@@ -95,7 +95,8 @@ canvas {
   display: none;
   align-items: center;
   justify-content: space-around;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-direction: column;
 
   width: auto;
   height: auto;
@@ -104,7 +105,7 @@ canvas {
   background-color: rgba(0, 0, 0, 0);
   border-radius: 100px;
   padding: 50px;
-  font-size: 28px;
+  font-size: 2vh;
   font-family: 'prettyFont', sans-serif;
   color: white;
   letter-spacing: 0.1em;
@@ -112,6 +113,11 @@ canvas {
   text-align: left;
 
   transition: opacity 2s ease-in-out;
+}
+
+.contact p {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .signature-container {
@@ -687,60 +693,147 @@ canvas {
 /*手機版*/
 @media screen and (max-width: 900px) {
 
-  .title { font-size: 10vw; width: 95%; margin-left: 0; }
-  .sub-title { font-size: 2.5vw; width: 95%; margin-left: 0; margin-top: 5px; }
-  .text-click { font-size: 5vw; letter-spacing: 0.8em; width: 90%; white-space: nowrap; animation: textShineMobile 3s ease-in-out infinite; }
-  .scroll-hint p {font-size: 3vw; letter-spacing: 0.5em; width: 90%; white-space: nowrap; animation: textShineMobile 3s ease-in-out infinite;}
-  .arrow { animation: arrowMoveMobile 1.5s infinite;}
+  .title {
+    font-size: 10vw;
+    width: 95%;
+    margin-left: 0;
+  }
 
-  .TypeWriter span { 
-    font-size: 3.5vw; 
-    margin-bottom: 15px; 
+  .sub-title {
+    font-size: 2.5vw;
+    width: 95%;
+    margin-left: 0;
+    margin-top: 5px;
+  }
+
+  .text-click {
+    font-size: 5vw;
+    letter-spacing: 0.8em;
+    width: 90%;
     white-space: nowrap;
-    height: auto; 
+    animation: textShineMobile 3s ease-in-out infinite;
+  }
+
+  .scroll-hint p {
+    font-size: 3vw;
+    letter-spacing: 0.5em;
+    width: 90%;
+    white-space: nowrap;
+    animation: textShineMobile 3s ease-in-out infinite;
+  }
+
+  .arrow {
+    animation: arrowMoveMobile 1.5s infinite;
+  }
+
+  .TypeWriter span {
+    font-size: 3.5vw;
+    margin-bottom: 15px;
+    white-space: nowrap;
+    height: auto;
     text-align: center;
   }
- 
-   .normal, .contact, .StatsBoard { 
-    width: 85vw; 
-    padding: 30px 20px; 
-    font-size: 3vw; 
+
+  .normal {
+    width: 80vw;
     height: auto;
+    padding: 30px 20px;
     border-radius: 30px;
   }
-  
-  .contact p, .normal span { font-size: 3.5vw; line-height: 1.6; }
-  
-    .start-button { width: 35vw; height: 6vh; font-size: 4vw; margin-top: 30px; }
-  .change-button, .continue-button { 
-    width: 40vw; 
+
+
+  .StatsBoard {
+    width: 85vw;
+    height: auto;
+    padding: 30px 20px;
+    font-size: 2vh;
+    line-height: 2em;
+    border-radius: 30px;
+  }
+
+  .contact {
+    width: 85vw;
+    height: 70vh;
+    padding: 30px 20px;
+    font-size: 2vh;
+    line-height: 2em;
+    border-radius: 30px;
+  }
+
+  .contact p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 2vh;
+    line-height: 2em;
+  }
+
+  .normal span {
+    font-size: 2vh;
+    line-height: 2em;
+  }
+
+  .start-button {
+    width: 35vw;
     height: 6vh;
-    font-size: 4vw; 
-    padding: 3vw 1.5vw; 
-    margin: 10px 0; 
+    font-size: 4vw;
+    margin-top: 30px;
+  }
+
+  .change-button,
+  .continue-button {
+    width: 40vw;
+    height: 6vh;
+    font-size: 4vw;
+    padding: 3vw 1.5vw;
+    margin: 10px 0;
     white-space: nowrap;
   }
-  
-    .choice-block, .end-options { 
-    flex-direction: column; 
-    gap: 15px; 
+
+  .choice-block,
+  .end-options {
+    flex-direction: column;
+    gap: 15px;
     width: 90vw;
   }
-  
-    .final-decision .continue-button { 
-    width: 80vw; 
-    height: auto; 
-    padding: 20px; 
-    margin: 10px 0; 
+
+  .final-decision .continue-button {
+    width: 80vw;
+    height: auto;
+    padding: 20px;
+    margin: 10px 0;
   }
-  .final-decision .continue-button h1 { font-size: 4vw; }
-  .final-decision .continue-button p { font-size: 4vw; letter-spacing: 0.1em; }
-  .end-options {align-items: center;}
-  .end-options .continue-button {font-size: 4vw; width: 40vw;}
-  
-  .canvas-wrapper { width: 70vw; height: 20vh; }
-  .stats-title { font-size: 5vw; }
-  .stats-row { width: 100%; font-size: 5vw; }
+
+  .final-decision .continue-button h1 {
+    font-size: 4vw;
+  }
+
+  .final-decision .continue-button p {
+    font-size: 4vw;
+    letter-spacing: 0.1em;
+  }
+
+  .end-options {
+    align-items: center;
+  }
+
+  .end-options .continue-button {
+    font-size: 4vw;
+    width: 40vw;
+  }
+
+  .canvas-wrapper {
+    width: 70vw;
+    height: 20vh;
+  }
+
+  .stats-title {
+    font-size: 5vw;
+  }
+
+  .stats-row {
+    width: 100%;
+    font-size: 5vw;
+  }
 }
 
 @keyframes textShineMobile {
