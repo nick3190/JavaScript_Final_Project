@@ -3,6 +3,7 @@
 <head>
   <title>Final Project</title>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="stylesheets/style.css">
   <link rel="icon" href="/images/baby.png" type="image/png">
 
@@ -122,7 +123,7 @@
     </h1>
 
     <h1 class="normal" data-id="24">
-      <span style="font-size: 36px"> 代孕小知識 </span>
+      <span style="font-size: 5vw"> 代孕小知識 </span>
       <span>輔助生殖技術（ART）的激素療程可能導致 卵巢過度刺激症候群（OHSS），症狀包含腹脹、嘔吐、氣喘等。</span>
     </h1>
 
@@ -141,13 +142,17 @@
       <p>請長按您的身體測量血壓。</p>
     </div>
 
+    <div id="bp-warning">
+      ⚠️ 警告！血壓過高！⚠️
+    </div>
+
     <h1 class="TypeWriter" data-id="26">
       <span> 「我的血壓太高了，我是不是做錯了什麼？」</span>
-      <span>「這孩子不屬於我…難道我的身體正在排斥它嗎？」</span>
+      <span style="font-size: 3vw;">「這孩子不屬於我…難道我的身體正在排斥它嗎？」</span>
     </h1>
 
     <h1 class="normal" data-id="27">
-      <span style="font-size: 36px"> 代孕小知識 </span>
+      <span style="font-size: 5vw"> 代孕小知識 </span>
       <span>孕期若免疫調節不平衡，可能增加子癇前症（Preeclampsia）風險。代孕懷胎涉及父母不同基因來源，可能增加免疫負荷。</span>
     </h1>
 
@@ -164,7 +169,7 @@
     <button class="continue-button" data-action="two-five-btn">進行手術</button>
 
     <div id="embryo-hint" class="scroll-hint">
-      <div class="arrow"></div>
+      <div class="arrow">⌃</div>
       <p>請向上滑動螢幕以注入胚胎</p>
     </div>
 
@@ -177,7 +182,7 @@
 
 
     <h1 class="normal" data-id="291">
-      <span style="font-size: 36px"> 代孕小知識 </span>
+      <span style="font-size: 5vw"> 代孕小知識 </span>
       <span>代孕若第一次植入不成功，常需進行多次激素療程與植入，增加身體負擔與心理壓力。</span>
     </h1>
 
@@ -207,7 +212,7 @@
 
     <h1 class="TypeWriter" data-id="34">
       <span>「他被抱走的瞬間，我的身體像被掏空了一樣。」</span>
-      <span>「我知道他不屬於我，但我的身體記得他來過。」</span>
+      <span style="font-size: 3vw;">「我知道他不屬於我，但我的身體記得他來過。」</span>
     </h1>
 
     <h1 class="TypeWriter" data-id="35">
@@ -296,8 +301,14 @@
         <span id="vote-total" class="vote-number">0</span>
       </div>
     </div>
+
+    <button class="continue-button" id="back-home-btn">
+      回首頁
+    </button>
+
   </div>
-<!-- 開發工具
+
+  <!--開發功能面板
   <div id="dev-panel"
     style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 10px; border: 1px solid #555; display: flex; flex-direction: column; gap: 8px; font-family: sans-serif;">
     <button onclick="skipToScene(2)"
@@ -344,7 +355,7 @@
           hideAllElements('.' + cls + ' .TypeWriter');
           hideAllElements('.' + cls + ' .continue-button');
           hideAllElements('.' + cls + ' .normal');
-          hideAllElements('.scroll-hint'); 
+          hideAllElements('.scroll-hint');
 
           if (cls === 'FirstScene') hideAllElements('.contact[data-id="1"]');
         }

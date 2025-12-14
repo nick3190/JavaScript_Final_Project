@@ -531,8 +531,6 @@ canvas {
 .arrow {
   width: 40px;
   height: 40px;
-  border-left: 3px solid white;
-  border-top: 3px solid white;
   animation: arrowMove 1.5s infinite;
   transform-origin: center center;
 }
@@ -590,7 +588,7 @@ canvas {
 
 @keyframes arrowMove {
   0% {
-    transform: rotate(45deg) translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(2) scaleX(3);
     opacity: 0;
   }
 
@@ -599,7 +597,7 @@ canvas {
   }
 
   100% {
-    transform: rotate(45deg) translate(-8vw, -80px) scale(1.3);
+    transform: translate(0, -80px) scale(2.5) scaleX(3);
     opacity: 0;
   }
 }
@@ -683,4 +681,140 @@ canvas {
   50% {
     border-color: rgba(255, 255, 255, 1);
   }
+}
+
+
+/*手機版*/
+@media screen and (max-width: 900px) {
+
+  .title { font-size: 10vw; width: 95%; margin-left: 0; }
+  .sub-title { font-size: 2.5vw; width: 95%; margin-left: 0; margin-top: 5px; }
+  .text-click { font-size: 5vw; letter-spacing: 0.8em; width: 90%; white-space: nowrap; animation: textShineMobile 3s ease-in-out infinite; }
+  .scroll-hint p {font-size: 3vw; letter-spacing: 0.5em; width: 90%; white-space: nowrap; animation: textShineMobile 3s ease-in-out infinite;}
+  .arrow { animation: arrowMoveMobile 1.5s infinite;}
+
+  .TypeWriter span { 
+    font-size: 3.5vw; 
+    margin-bottom: 15px; 
+    white-space: nowrap;
+    height: auto; 
+    text-align: center;
+  }
+ 
+   .normal, .contact, .StatsBoard { 
+    width: 85vw; 
+    padding: 30px 20px; 
+    font-size: 3vw; 
+    height: auto;
+    border-radius: 30px;
+  }
+  
+  .contact p, .normal span { font-size: 3.5vw; line-height: 1.6; }
+  
+    .start-button { width: 35vw; height: 6vh; font-size: 4vw; margin-top: 30px; }
+  .change-button, .continue-button { 
+    width: 40vw; 
+    height: 6vh;
+    font-size: 4vw; 
+    padding: 3vw 1.5vw; 
+    margin: 10px 0; 
+    white-space: nowrap;
+  }
+  
+    .choice-block, .end-options { 
+    flex-direction: column; 
+    gap: 15px; 
+    width: 90vw;
+  }
+  
+    .final-decision .continue-button { 
+    width: 80vw; 
+    height: auto; 
+    padding: 20px; 
+    margin: 10px 0; 
+  }
+  .final-decision .continue-button h1 { font-size: 4vw; }
+  .final-decision .continue-button p { font-size: 4vw; letter-spacing: 0.1em; }
+  .end-options {align-items: center;}
+  .end-options .continue-button {font-size: 4vw; width: 40vw;}
+  
+  .canvas-wrapper { width: 70vw; height: 20vh; }
+  .stats-title { font-size: 5vw; }
+  .stats-row { width: 100%; font-size: 5vw; }
+}
+
+@keyframes textShineMobile {
+
+  0%,
+  100% {
+    text-shadow: 0 0px 50px rgba(255, 255, 255, 0);
+    transform: scale(1) translateX(0.1em);
+
+  }
+
+  50% {
+    text-shadow: 0 0px 50px rgba(255, 255, 255, 1);
+    transform: scale(1.05) translateX(0.1em);
+  }
+}
+
+@keyframes arrowMoveMobile {
+  0% {
+    transform: translate(0, 0) scale(2) scaleX(3);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(0, -80px) scale(2.5) scaleX(3);
+    opacity: 0;
+  }
+}
+
+
+/* 禁止選取文字 */
+#ui-layer,
+.TypeWriter,
+.continue-button,
+.menu,
+.final-decision,
+.text-click,
+h1,
+p,
+span {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+canvas {
+  user-select: auto;
+}
+
+#bp-warning {
+  position: fixed;
+  left: 50%;
+  bottom: 20%;
+  transform: translateX(-50%);
+
+  font-family: 'prettyFont', serif;
+  font-size: 4vw;
+  letter-spacing: 0.3em;
+  color: red;
+  text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+  white-space: nowrap;
+
+  opacity: 0;
+  pointer-events: none;
+  z-index: 999;
+
+  transition: opacity 0.6s ease;
+}
+
+#back-home-btn {
+  margin-top: 30px;
+  pointer-events: auto;
 }

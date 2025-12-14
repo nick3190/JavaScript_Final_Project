@@ -25,7 +25,6 @@ function fetchAndDisplayVotes() {
             return response.json();
         })
         .then(function (data) {
-            // 確保 ID 與 HTML 對應
             const elSupport = document.getElementById('vote-support');
             const elOppose = document.getElementById('vote-number-oppose');
             const elPause = document.getElementById('vote-pause');
@@ -197,13 +196,13 @@ window.addEventListener('load', () => {
     choiceBlock.forEach(block => block.style.display = 'none');
     choiceBlock.forEach(block => block.style.opacity = 0);
     allChangeBtns.forEach(btn => btn.style.pointerEvents = 'auto');
-    //allChangeBtns.forEach(btn => btn.style.display = 'none');
-    //allChangeBtns.forEach(btn => btn.style.opacity = 0);
+    allChangeBtns.forEach(btn => btn.style.display = 'none');
+    allChangeBtns.forEach(btn => btn.style.opacity = 0);
 
     menu.style.display = 'none';
 
     /*
-        //p5js參數初始化（這些要搬到後端，然後寄數據到這個檔案）
+        //p5js參數初始化（這些要搬到後端，然後寄數據到sketch.js）
         params.speed = 0.005;
         params.amp = 80;            // 波浪振幅(高度)：數值越大浪越高 (30 ~ 100)
         params.density = 0.01;      // 波浪密度(頻率)：數值越大越碎 (0.005 ~ 0.02)
@@ -310,7 +309,7 @@ continueBtn.forEach(btn => {
     btn.addEventListener('click', (e) => {
         playClickSfx();
 
-        const clickedElement = e.target.closest('.continue-button');
+        const clickedElement = e.currentTarget.closest('.continue-button');
         if (!clickedElement) return;
         const action = clickedElement.dataset.action;
         if (action != 'clear') {
@@ -1138,6 +1137,27 @@ continueBtn.forEach(btn => {
             setTimeout(() => {
                 statsDisplay.style.opacity = 1;
             }, 6000);
+
+            setTimeout(() => {
+                const backHomeBtn = document.getElementById('back-home-btn');
+
+                if (backHomeBtn) {
+                    backHomeBtn.style.display = 'flex';
+                    backHomeBtn.style.pointerEvents = 'auto';
+
+                    requestAnimationFrame(() => {
+                        backHomeBtn.style.opacity = 1;
+                    });
+
+                    if (!backHomeBtn.dataset.bound) {
+                        backHomeBtn.dataset.bound = 'true';
+                        backHomeBtn.addEventListener('click', () => {
+                            playClickSfx();
+                            location.reload();
+                        });
+                    }
+                }
+            }, 7000);
         }
 
     });
