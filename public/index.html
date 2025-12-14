@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="stylesheets/style.css">
   <link rel="icon" href="/images/baby.png" type="image/png">
-
 </head>
 
 <body>
@@ -96,7 +95,7 @@
 
 
 
-    <button class="change-button" data-next="SecondScene" data-action="TriggerSecondScene"> 下一幕 </button>
+    <!-- <button class="change-button" data-next="SecondScene" data-action="TriggerSecondScene"> 下一幕 </button> -->
   </div>
 
   <div class="SecondScene">
@@ -139,6 +138,10 @@
 
     <div id="blood-pressure-hint" class="scroll-hint">
       <p>請長按您的身體測量血壓。</p>
+    </div>
+
+    <div id="bp-warning">
+      ⚠️ 警告！血壓過高！⚠️
     </div>
 
     <h1 class="TypeWriter" data-id="26">
@@ -185,7 +188,7 @@
 
 
 
-    <button class="change-button" data-next="ThirdScene" data-action="TriggerThirdScene"> 下一幕 </button>
+    <!-- <button class="change-button" data-next="ThirdScene" data-action="TriggerThirdScene"> 下一幕 </button> -->
   </div>
 
   <div class="ThirdScene">
@@ -228,7 +231,7 @@
 
     <button class="continue-button" data-action="three-three-btn">完成合約</button>
 
-    <button class="change-button" data-next="FourthScene" data-action="TriggerFourthScene"> 下一幕 </button>
+    <!-- <button class="change-button" data-next="FourthScene" data-action="TriggerFourthScene"> 下一幕 </button> -->
 
   </div>
   <div class="FourthScene">
@@ -296,6 +299,13 @@
         <span id="vote-total" class="vote-number">0</span>
       </div>
     </div>
+
+    <button
+      class="continue-button"
+      id="back-home-btn"
+    >
+      回首頁
+    </button>
   </div>
 <!-- 開發工具
   <div id="dev-panel"
