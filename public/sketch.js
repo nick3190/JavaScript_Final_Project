@@ -303,13 +303,16 @@ function drawBloodPressureUI() {
         text(Math.floor(currentBP) + " mmHg", barX, barY - 15);
 
         if (isCritical) {
-            fill(0, 100, 100);
-            textSize(30);
-            text("⚠️ 警告！血壓過高！⚠️", barX, barY - 50);
+            const warning = document.getElementById('bp-warning');
+            if (warning) warning.style.opacity = 1;
 
             if (currentBP > 200) {
                 setSceneState(STATE.POST_BP);
             }
+        } 
+        else {
+            const warning = document.getElementById('bp-warning');
+            if (warning) warning.style.opacity = 0;
         }
     }
 }
@@ -369,15 +372,22 @@ function setInjectionMode(isActive) {
     }
 }
 
+function hideBPWarning() {
+  const warning = document.getElementById('bp-warning');
+  if (warning) warning.style.opacity = 0;
+}
+
 //量血壓
 function setMeasuringMode(isActive) {
     showMeasure = isActive;
+
     if (isActive) {
         noCursor();
         params.trail = 100;
         currentBP = 0;
     } else {
         cursor();
+        hideBPWarning(); 
     }
 }
 
@@ -415,19 +425,19 @@ function setEndingMood(winner) {
     let endBlur = false;
 
     if (winner === 'support') {
-        params.amp = 50;
-        params.speed = 0.005;
-        params.trail = 20;
-        params.bgColor = [200, 70, 40, 100];
-        params.lineColor = [190, 30, 100, 80];
-        endBlur = false;
-    }
-    else if (winner === 'oppose') {
         params.amp = 300;
         params.speed = 0.1;
         params.trail = 80;
         params.bgColor = [280, 80, 20, 100];
         params.lineColor = [340, 80, 90, 80];
+        endBlur = false;
+    }
+    else if (winner === 'oppose') {
+        params.amp = 50;
+        params.speed = 0.005;
+        params.trail = 20;
+        params.bgColor = [200, 70, 40, 100];
+        params.lineColor = [190, 30, 100, 80];
         endBlur = false;
     }
     else if (winner === 'pause') {

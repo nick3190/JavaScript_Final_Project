@@ -684,3 +684,50 @@ canvas {
     border-color: rgba(255, 255, 255, 1);
   }
 }
+
+/* 禁止選取文字 */
+#ui-layer,
+.TypeWriter,
+.continue-button,
+.menu,
+.final-decision,
+.text-click,
+h1,
+p,
+span {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+canvas {
+  user-select: auto;
+}
+
+#bp-warning {
+  position: fixed;
+  left: 50%;
+  bottom: 20%;
+  transform: translateX(-50%);
+
+  font-family: 'prettyFont', serif;
+  font-size: 36px;
+  letter-spacing: 0.3em;
+  color: red;
+  text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+
+  opacity: 0;
+  pointer-events: none;
+  z-index: 999;
+
+  transition: opacity 0.6s ease;
+}
+
+#back-home-btn {
+  margin-top: 30px;
+  pointer-events: auto;
+}
+
+
+
+

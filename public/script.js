@@ -17,7 +17,6 @@ let hasStartedMusic = false;
 let myDecision = 'support';
 let voteRefreshInterval = null;
 
-
 function fetchAndDisplayVotes() {
     fetch(`${BACKEND_URL}/api/vote-stats`)
         .then(function (response) {
@@ -310,7 +309,7 @@ continueBtn.forEach(btn => {
     btn.addEventListener('click', (e) => {
         playClickSfx();
 
-        const clickedElement = e.target.closest('.continue-button');
+        const clickedElement = e.currentTarget.closest('.continue-button');
         if (!clickedElement) return;
         const action = clickedElement.dataset.action;
         if (action != 'clear') {
@@ -1138,6 +1137,30 @@ continueBtn.forEach(btn => {
             setTimeout(() => {
                 statsDisplay.style.opacity = 1;
             }, 6000);
+
+            setTimeout(() => {
+                const backHomeBtn = document.getElementById('back-home-btn');
+
+                if (backHomeBtn) {
+                    backHomeBtn.style.display = 'flex';
+                    backHomeBtn.style.pointerEvents = 'auto';
+
+                    requestAnimationFrame(() => {
+                        backHomeBtn.style.opacity = 1;
+                    });
+
+                    if (!backHomeBtn.dataset.bound) {
+                        backHomeBtn.dataset.bound = 'true';
+                        backHomeBtn.addEventListener('click', () => {
+                            playClickSfx();
+                            location.reload();
+                        });
+                    }
+                }
+            }, 7000);
+
+
+
         }
 
     });
