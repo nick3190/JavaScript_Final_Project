@@ -200,7 +200,7 @@ function drawWaves() {
         let alpha = map(y, 0, height, 10, 100);
         stroke(params.lineColor[0], params.lineColor[1], params.lineColor[2], alpha);
         beginShape();
-        for (let x = 0; x <= width; x += params.curveRes) {
+        for (let x = 0; x <= width + 100; x += params.curveRes) {
             let noiseVal = noise(x * params.density, y * 0.02, t);
             let waveHeight = map(noiseVal, 0, 1, -params.amp, params.amp);
             vertex(x, y + waveHeight);
